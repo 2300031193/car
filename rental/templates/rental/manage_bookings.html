@@ -1,0 +1,734 @@
+{% extends 'rental/new_base.html' %}
+{% load static %}
+
+{% block title %}Booking Management | Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom styles for booking management */
+    .dashboard-container {
+        padding: var(--spacing-xl) 0;
+    }
+    
+    .filters-container {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .booking-card {
+        margin-bottom: var(--spacing-md);
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: all var(--transition-normal);
+    }
+    
+    .booking-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .booking-header {
+        padding: var(--spacing-md) var(--spacing-lg);
+        background-color: var(--neutral-100);
+        border-bottom: 1px solid var(--neutral-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+    
+    .booking-body {
+        padding: var(--spacing-lg);
+    }
+    
+    .booking-footer {
+        padding: var(--spacing-md) var(--spacing-lg);
+        background-color: var(--neutral-100);
+        border-top: 1px solid var(--neutral-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .booking-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+    }
+    
+    .booking-detail {
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .booking-detail-label {
+        display: block;
+        font-size: var(--small-font-size);
+        color: var(--neutral-600);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .booking-detail-value {
+        font-weight: 500;
+        color: var(--neutral-900);
+    }
+    
+    .booking-id {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .booking-date {
+        color: var(--neutral-600);
+        font-size: var(--small-font-size);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--border-radius-full);
+        font-size: var(--small-font-size);
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background-color: var(--warning);
+        color: var(--neutral-900);
+    }
+    
+    .status-confirmed {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .status-active {
+        background-color: var(--success);
+        color: white;
+    }
+    
+    .status-completed {
+        background-color: var(--info);
+        color: white;
+    }
+    
+    .status-cancelled {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .booking-notes {
+        border-top: 1px solid var(--neutral-200);
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-md);
+    }
+    
+    .notes-label {
+        font-size: var(--small-font-size);
+        font-weight: 600;
+        color: var(--neutral-700);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .notes-content {
+        color: var(--neutral-600);
+        font-size: var(--small-font-size);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .notes-empty {
+        color: var(--neutral-500);
+        font-style: italic;
+        font-size: var(--small-font-size);
+    }
+    
+    /* Responsive tweaks */
+    @media (max-width: 767.98px) {
+        .booking-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .booking-info {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <!-- Admin Welcome Banner -->
+    <div class="admin-section mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="admin-greeting">Welcome, {{ user.username }}!</h2>
+                <p class="text-muted">You are in admin mode with full booking management privileges.</p>
+            </div>
+            <div class="text-end">
+                <div class="badge bg-danger p-2 mb-2">Admin Access</div>
+                <div class="small text-muted">{% now "l, F j, Y" %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Booking Management</h1>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <!-- Filters Section -->
+    <div class="filters-container">
+        <form method="get" action="{% url 'manage_bookings' %}" class="row g-3">
+            <div class="col-md-3">
+                <label for="status" class="form-label">Filter by Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Declined</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="from_date" class="form-label">From Date</label>
+                <input type="date" name="from_date" id="from_date" class="form-control" value="{{ from_date }}">
+            </div>
+            <div class="col-md-3">
+                <label for="to_date" class="form-label">To Date</label>
+                <input type="date" name="to_date" id="to_date" class="form-control" value="{{ to_date }}">
+            </div>
+            <div class="col-md-3">
+                <label for="search" class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" name="search" id="search" class="form-control" placeholder="User, car, invoice..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{% url 'manage_bookings' %}" class="btn btn-outline-secondary">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Bookings Tabs -->
+    <div class="bookings-list">
+        <h2 class="mb-4">
+            Bookings
+            {% if status_filter %}<small class="text-muted"> - {{ status_filter|title }} only</small>{% endif %}
+            <span class="badge bg-primary">{{ bookings|length }}</span>
+        </h2>
+        
+        <!-- Booking Status Tabs -->
+        <ul class="nav nav-tabs mb-4" id="bookingStatusTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if not status_filter %}active{% endif %}" 
+                        id="all-tab" data-bs-toggle="tab" data-bs-target="#all-bookings" 
+                        type="button" role="tab" aria-controls="all-bookings" 
+                        aria-selected="{% if not status_filter %}true{% else %}false{% endif %}">
+                    All Bookings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if status_filter == 'pending' %}active{% endif %}" 
+                        id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-bookings" 
+                        type="button" role="tab" aria-controls="pending-bookings" 
+                        aria-selected="{% if status_filter == 'pending' %}true{% else %}false{% endif %}">
+                    Pending
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if status_filter == 'confirmed' %}active{% endif %}" 
+                        id="confirmed-tab" data-bs-toggle="tab" data-bs-target="#confirmed-bookings" 
+                        type="button" role="tab" aria-controls="confirmed-bookings" 
+                        aria-selected="{% if status_filter == 'confirmed' %}true{% else %}false{% endif %}">
+                    Confirmed
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if status_filter == 'active' %}active{% endif %}" 
+                        id="active-tab" data-bs-toggle="tab" data-bs-target="#active-bookings" 
+                        type="button" role="tab" aria-controls="active-bookings" 
+                        aria-selected="{% if status_filter == 'active' %}true{% else %}false{% endif %}">
+                    Active {% if pending_active_bookings %}<span class="badge bg-warning">{{ pending_active_bookings|length }}</span>{% endif %}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if status_filter == 'completed' %}active{% endif %}" 
+                        id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-bookings" 
+                        type="button" role="tab" aria-controls="completed-bookings" 
+                        aria-selected="{% if status_filter == 'completed' %}true{% else %}false{% endif %}">
+                    Completed
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if status_filter == 'cancelled' %}active{% endif %}" 
+                        id="declined-tab" data-bs-toggle="tab" data-bs-target="#declined-bookings" 
+                        type="button" role="tab" aria-controls="declined-bookings" 
+                        aria-selected="{% if status_filter == 'cancelled' %}true{% else %}false{% endif %}">
+                    Declined
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="bookingStatusContent">
+            <!-- All Bookings Tab -->
+            <div class="tab-pane fade {% if not status_filter %}show active{% endif %}" id="all-bookings" role="tabpanel" aria-labelledby="all-tab">
+                {% if bookings %}
+                    {% for booking in bookings %}
+                        <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                            <div class="booking-header">
+                        <div>
+                            <span class="booking-id">Booking #{{ booking.id }}</span>
+                            {% if booking.invoice_number %}
+                                <span class="ms-2 text-muted">(Invoice: {{ booking.invoice_number }})</span>
+                            {% endif %}
+                            <div class="booking-date">{{ booking.booking_date|date:"F j, Y, g:i a" }}</div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div>
+                                {% if booking.status == 'pending' %}
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock me-1"></i> Pending
+                                    </span>
+                                {% elif booking.status == 'confirmed' %}
+                                    <span class="status-badge status-confirmed">
+                                        <i class="fas fa-check me-1"></i> Confirmed
+                                    </span>
+                                {% elif booking.status == 'active' %}
+                                    <span class="status-badge status-active">
+                                        <i class="fas fa-car me-1"></i> Active
+                                    </span>
+                                {% elif booking.status == 'completed' %}
+                                    <span class="status-badge status-completed">
+                                        <i class="fas fa-flag-checkered me-1"></i> Completed
+                                    </span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="status-badge status-cancelled">
+                                        <i class="fas fa-times me-1"></i> Cancelled
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-body">
+                        <div class="booking-info">
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Customer</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-user me-1"></i> {{ booking.user.username }}
+                                        <div class="small text-muted">{{ booking.user.email }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Vehicle</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-car me-1"></i> {{ booking.car.name }} {{ booking.car.model }}
+                                        <div class="small text-muted">Plate: {{ booking.car.number_plate }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Period</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-calendar-alt me-1"></i> {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                        <div class="small text-muted">
+                                            {% if booking.pickup_time %}Pickup: {{ booking.pickup_time }}{% endif %}
+                                            {% if booking.return_time %} - Return: {{ booking.return_time }}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Location</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-map-marker-alt me-1"></i> 
+                                        {% if booking.pickup_location %}{{ booking.pickup_location.name }}{% else %}Main Office{% endif %}
+                                        {% if booking.return_location and booking.return_location != booking.pickup_location %}
+                                            to {{ booking.return_location.name }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Payment</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-dollar-sign me-1"></i> ${{ booking.total_price }}
+                                        <div class="small text-muted">
+                                            Method: {{ booking.payment_method|default:"Not specified"|title }}
+                                            <span class="ms-2">
+                                                {% if booking.payment_status %}
+                                                    <span class="badge bg-success">Paid</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Additional Options</span>
+                                    <div class="booking-detail-value">
+                                        {% if booking.additional_options %}
+                                            <div class="small">
+                                                {% if booking.additional_options.gps_navigation %}
+                                                    <span class="badge bg-light text-dark me-1">GPS Navigation</span>
+                                                {% endif %}
+                                                {% if booking.additional_options.child_seat %}
+                                                    <span class="badge bg-light text-dark me-1">Child Seat</span>
+                                                {% endif %}
+                                                {% if booking.additional_options.additional_driver %}
+                                                    <span class="badge bg-light text-dark me-1">Additional Driver</span>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if booking.customer_notes or booking.admin_notes %}
+                            <div class="booking-notes">
+                                {% if booking.customer_notes %}
+                                    <div class="mb-3">
+                                        <div class="notes-label">Customer Notes:</div>
+                                        <div class="notes-content">{{ booking.customer_notes }}</div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if booking.admin_notes %}
+                                    <div>
+                                        <div class="notes-label">Admin Notes:</div>
+                                        <div class="notes-content">{{ booking.admin_notes }}</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="booking-footer">
+                        <div class="text-muted small">
+                            <strong>Booking ID:</strong> {{ booking.id }}
+                        </div>
+                        <div class="action-buttons">
+                            {% if booking.status == 'pending' %}
+                                <a href="{% url 'booking_action' booking.id 'accept' %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i> Accept
+                                </a>
+                                <a href="{% url 'booking_action' booking.id 'decline' %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to decline this booking?');">
+                                    <i class="fas fa-times"></i> Decline
+                                </a>
+                            {% elif booking.status == 'confirmed' or booking.status == 'active' %}
+                                <a href="{% url 'booking_action' booking.id 'complete' %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-flag-checkered"></i> Mark Completed
+                                </a>
+                                <a href="{% url 'booking_action' booking.id 'decline' %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            {% endif %}
+                            <!-- Add edit button here later -->
+                            <button type="button" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center p-5 bg-light rounded">
+                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                <h3>No bookings found</h3>
+                <p class="text-muted">
+                    {% if search_query or from_date or to_date or status_filter %}
+                        No bookings match your filter criteria. Try adjusting your filters.
+                    {% else %}
+                        There are currently no bookings in the system.
+                    {% endif %}
+                </p>
+                <a href="{% url 'manage_bookings' %}" class="btn btn-primary mt-3">Clear Filters</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pending Bookings Tab -->
+    <div class="tab-pane fade {% if status_filter == 'pending' %}show active{% endif %}" id="pending-bookings" role="tabpanel" aria-labelledby="pending-tab">
+        {% if pending_bookings %}
+            {% for booking in pending_bookings %}
+                <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                    <!-- Same card structure as above, but specific to pending bookings -->
+                    <div class="booking-header">
+                        <div>
+                            <span class="booking-id">Booking #{{ booking.id }}</span>
+                            <div class="booking-date">{{ booking.booking_date|date:"F j, Y, g:i a" }}</div>
+                        </div>
+                        <div>
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-clock me-1"></i> Pending
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-body">
+                        <!-- Booking details here -->
+                        <div class="booking-info">
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Customer</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-user me-1"></i> {{ booking.user.username }}
+                                        <div class="small text-muted">{{ booking.user.email }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Vehicle</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-car me-1"></i> {{ booking.car.name }} {{ booking.car.model }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Period</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-calendar-alt me-1"></i> {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Location</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-map-marker-alt me-1"></i> 
+                                        {% if booking.pickup_location %}{{ booking.pickup_location.name }}{% else %}Main Office{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Payment</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-dollar-sign me-1"></i> ${{ booking.total_price }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-footer">
+                        <div class="text-muted small">
+                            <strong>Booking ID:</strong> {{ booking.id }}
+                        </div>
+                        <div class="action-buttons">
+                            <a href="{% url 'booking_action' booking.id 'accept' %}" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Accept
+                            </a>
+                            <a href="{% url 'booking_action' booking.id 'decline' %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to decline this booking?');">
+                                <i class="fas fa-times"></i> Decline
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center p-5 bg-light rounded">
+                <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                <h3>No pending bookings</h3>
+                <p class="text-muted">There are currently no pending bookings that require your attention.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Declined Rides Tab (Cancelled Bookings) -->
+    <div class="tab-pane fade {% if status_filter == 'cancelled' %}show active{% endif %}" id="declined-bookings" role="tabpanel" aria-labelledby="declined-tab">
+        {% if declined_bookings %}
+            <div class="mb-4">
+                <h3 class="text-danger"><i class="fas fa-times-circle"></i> Declined Rides</h3>
+                <p class="text-muted">These bookings have been declined or cancelled</p>
+            </div>
+            
+            {% for booking in declined_bookings %}
+                <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms; border-left: 4px solid var(--danger);">
+                    <div class="booking-header">
+                        <div>
+                            <span class="booking-id">Booking #{{ booking.id }}</span>
+                            <div class="booking-date">{{ booking.booking_date|date:"F j, Y, g:i a" }}</div>
+                        </div>
+                        <div>
+                            <span class="status-badge status-cancelled">
+                                <i class="fas fa-times me-1"></i> Declined
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-body">
+                        <div class="booking-info">
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Customer</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-user me-1"></i> {{ booking.user.username }}
+                                        <div class="small text-muted">{{ booking.user.email }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Vehicle</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-car me-1"></i> {{ booking.car.name }} {{ booking.car.model }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Requested Period</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-calendar-alt me-1"></i> {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                                
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Location</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-map-marker-alt me-1"></i> 
+                                        {% if booking.pickup_location %}{{ booking.pickup_location.name }}{% else %}Main Office{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="booking-detail">
+                                    <span class="booking-detail-label">Quoted Price</span>
+                                    <div class="booking-detail-value">
+                                        <i class="fas fa-dollar-sign me-1"></i> ${{ booking.total_price }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-footer">
+                        <div class="text-muted small">
+                            <strong>Booking ID:</strong> {{ booking.id }}
+                        </div>
+                        <div class="action-buttons">
+                            <a href="{% url 'booking_action' booking.id 'accept' %}" class="btn btn-success btn-sm">
+                                <i class="fas fa-redo"></i> Reinstate
+                            </a>
+                            <button type="button" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center p-5 bg-light rounded">
+                <i class="fas fa-ban fa-3x text-muted mb-3"></i>
+                <h3>No declined bookings</h3>
+                <p class="text-muted">There are currently no declined or cancelled bookings.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle tab navigation via URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const statusFilter = params.get('status');
+        
+        if (statusFilter) {
+            // If status filter is set in URL, activate the corresponding tab
+            const tabTriggers = document.querySelectorAll('#bookingStatusTabs .nav-link');
+            tabTriggers.forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+            
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            
+            if (statusFilter === 'pending') {
+                document.getElementById('pending-tab').classList.add('active');
+                document.getElementById('pending-tab').setAttribute('aria-selected', 'true');
+                document.getElementById('pending-bookings').classList.add('show', 'active');
+            } else if (statusFilter === 'confirmed') {
+                document.getElementById('confirmed-tab').classList.add('active');
+                document.getElementById('confirmed-tab').setAttribute('aria-selected', 'true');
+                document.getElementById('confirmed-bookings').classList.add('show', 'active');
+            } else if (statusFilter === 'active') {
+                document.getElementById('active-tab').classList.add('active');
+                document.getElementById('active-tab').setAttribute('aria-selected', 'true');
+                document.getElementById('active-bookings').classList.add('show', 'active');
+            } else if (statusFilter === 'completed') {
+                document.getElementById('completed-tab').classList.add('active');
+                document.getElementById('completed-tab').setAttribute('aria-selected', 'true');
+                document.getElementById('completed-bookings').classList.add('show', 'active');
+            } else if (statusFilter === 'cancelled') {
+                document.getElementById('declined-tab').classList.add('active');
+                document.getElementById('declined-tab').setAttribute('aria-selected', 'true');
+                document.getElementById('declined-bookings').classList.add('show', 'active');
+            }
+        }
+        
+        // Update URL when tabs are clicked
+        const tabLinks = document.querySelectorAll('#bookingStatusTabs .nav-link');
+        tabLinks.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.id;
+                let status = '';
+                
+                if (tabId === 'pending-tab') status = 'pending';
+                else if (tabId === 'confirmed-tab') status = 'confirmed';
+                else if (tabId === 'active-tab') status = 'active';
+                else if (tabId === 'completed-tab') status = 'completed';
+                else if (tabId === 'declined-tab') status = 'cancelled';
+                
+                const url = new URL(window.location);
+                if (status) {
+                    url.searchParams.set('status', status);
+                } else {
+                    url.searchParams.delete('status');
+                }
+                window.history.pushState({}, '', url);
+            });
+        });
+    });
+</script>
+{% endblock %}

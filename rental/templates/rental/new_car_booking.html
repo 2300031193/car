@@ -1,0 +1,614 @@
+{% extends 'rental/new_base.html' %}
+{% load static %}
+{% load rental_extras %}
+
+{% block title %}Book {{ car.name }} {{ car.model }} | LuxeDrive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-container {
+        padding: var(--spacing-xl) 0;
+    }
+    
+    .booking-header {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .car-image-container {
+        height: 250px;
+        overflow: hidden;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .car-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .car-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--neutral-200);
+        color: var(--neutral-500);
+        font-size: 3rem;
+    }
+    
+    .car-details {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .car-name {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .car-model {
+        font-size: 1.25rem;
+        color: var(--neutral-600);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .car-price {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .car-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+        margin-top: var(--spacing-md);
+    }
+    
+    .car-info-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        color: var(--neutral-700);
+    }
+    
+    .car-info-item i {
+        color: var(--primary-color);
+    }
+    
+    .booking-form-container {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .price-summary {
+        background-color: var(--neutral-100);
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        margin-top: var(--spacing-lg);
+    }
+    
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .price-total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-md);
+        border-top: 1px solid var(--neutral-300);
+    }
+    
+    /* Calendar styling */
+    .booking-calendar {
+        margin-top: var(--spacing-lg);
+    }
+    
+    .calendar-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .calendar-legend {
+        display: flex;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        font-size: var(--small-font-size);
+    }
+    
+    .legend-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+    }
+    
+    .legend-available {
+        background-color: var(--success);
+    }
+    
+    .legend-unavailable {
+        background-color: var(--danger);
+    }
+    
+    .legend-selected {
+        background-color: var(--primary-color);
+    }
+    
+    /* Form styling */
+    .form-section {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .form-section-title {
+        font-weight: 600;
+        margin-bottom: var(--spacing-md);
+        color: var(--neutral-800);
+    }
+    
+    .option-card {
+        border: 1px solid var(--neutral-200);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+        transition: all var(--transition-normal);
+    }
+    
+    .option-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .option-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .option-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(58, 123, 213, 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+    }
+    
+    .option-title {
+        font-weight: 600;
+        color: var(--neutral-800);
+    }
+    
+    .option-price {
+        margin-left: auto;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .option-description {
+        margin-top: var(--spacing-sm);
+        font-size: var(--small-font-size);
+        color: var(--neutral-600);
+    }
+    
+    .checkout-btn {
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container booking-container">
+    <div class="booking-header">
+        <h1>Book Your Perfect Ride</h1>
+        <p class="text-muted">Complete the form below to reserve your vehicle</p>
+    </div>
+    
+    <div class="row">
+        <!-- Car Details -->
+        <div class="col-lg-4 mb-4 mb-lg-0">
+            <div class="car-details fade-in">
+                <div class="car-image-container">
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}" alt="{{ car.name }}" class="car-image">
+                    {% else %}
+                        <div class="car-placeholder">
+                            <i class="fas fa-car"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h2 class="car-name">{{ car.name }}</h2>
+                <div class="car-model">{{ car.model }}</div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="car-price">${{ car.price_per_day }}<span class="text-muted" style="font-size: 1rem;"> /day</span></div>
+                    
+                    {% if car.availability %}
+                        <span class="badge bg-success">Available</span>
+                    {% else %}
+                        <span class="badge bg-danger">Unavailable</span>
+                    {% endif %}
+                </div>
+                
+                <hr>
+                
+                <div class="car-info">
+                    <div class="car-info-item">
+                        <i class="fas fa-car"></i>
+                        <span>Automatic</span>
+                    </div>
+                    <div class="car-info-item">
+                        <i class="fas fa-user-friends"></i>
+                        <span>5 Seats</span>
+                    </div>
+                    <div class="car-info-item">
+                        <i class="fas fa-suitcase"></i>
+                        <span>3 Bags</span>
+                    </div>
+                    <div class="car-info-item">
+                        <i class="fas fa-gas-pump"></i>
+                        <span>Fuel: Full</span>
+                    </div>
+                    <div class="car-info-item">
+                        <i class="fas fa-snowflake"></i>
+                        <span>A/C</span>
+                    </div>
+                    <div class="car-info-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Insurance</span>
+                    </div>
+                </div>
+                
+                <!-- Booking Calendar -->
+                <div class="booking-calendar">
+                    <h3 class="calendar-title">Availability Calendar</h3>
+                    
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <div class="legend-color legend-available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-unavailable"></div>
+                            <span>Booked</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-selected"></div>
+                            <span>Your Selection</span>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-container" id="availability-calendar"></div>
+                    
+                    {% if existing_bookings %}
+                        <div class="mt-3">
+                            <h6>Already booked for:</h6>
+                            <ul class="small">
+                                {% for booking in existing_bookings %}
+                                    <li>{{ booking.start_date|date:"M d" }} to {{ booking.end_date|date:"M d, Y" }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Form -->
+        <div class="col-lg-8">
+            <div class="booking-form-container slide-in-up">
+                <h3 class="mb-4">Booking Details</h3>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.car }}
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title"><i class="fas fa-calendar-alt text-primary me-2"></i> Rental Period</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">Pick-up Date</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger">{{ form.start_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">Return Date</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger">{{ form.end_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.pickup_time.id_for_label }}" class="form-label">Pick-up Time</label>
+                                {{ form.pickup_time }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.return_time.id_for_label }}" class="form-label">Return Time</label>
+                                {{ form.return_time }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title"><i class="fas fa-map-marker-alt text-primary me-2"></i> Location</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.pickup_location.id_for_label }}" class="form-label">Pick-up Location</label>
+                                {{ form.pickup_location }}
+                                {% if form.pickup_location.errors %}
+                                    <div class="text-danger">{{ form.pickup_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.return_location.id_for_label }}" class="form-label">Return Location</label>
+                                {{ form.return_location }}
+                                {% if form.return_location.errors %}
+                                    <div class="text-danger">{{ form.return_location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title"><i class="fas fa-plus-circle text-primary me-2"></i> Additional Options</h4>
+                        
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-icon">
+                                    <i class="fas fa-map"></i>
+                                </div>
+                                <div class="option-title">GPS Navigation</div>
+                                <div class="option-price">${{ additional_options.gps_navigation }}/day</div>
+                                <div class="form-check ms-2">
+                                    {{ form.gps_navigation }}
+                                </div>
+                            </div>
+                            <div class="option-description">
+                                Never get lost with our premium GPS navigation system. Includes real-time traffic updates and points of interest.
+                            </div>
+                        </div>
+                        
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-icon">
+                                    <i class="fas fa-baby"></i>
+                                </div>
+                                <div class="option-title">Child Seat</div>
+                                <div class="option-price">${{ additional_options.child_seat }}/day</div>
+                                <div class="form-check ms-2">
+                                    {{ form.child_seat }}
+                                </div>
+                            </div>
+                            <div class="option-description">
+                                Safe travel with your little ones. Our child seats meet all safety regulations and are suitable for children 9 months to 4 years old.
+                            </div>
+                        </div>
+                        
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="option-title">Additional Driver</div>
+                                <div class="option-price">${{ additional_options.additional_driver }}/day</div>
+                                <div class="form-check ms-2">
+                                    {{ form.additional_driver }}
+                                </div>
+                            </div>
+                            <div class="option-description">
+                                Share the driving with another person. All additional drivers must have a valid license and be present at pickup.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title"><i class="fas fa-credit-card text-primary me-2"></i> Payment</h4>
+                        <div class="mb-3">
+                            <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger">{{ form.payment_method.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title"><i class="fas fa-sticky-note text-primary me-2"></i> Special Requests</h4>
+                        <div class="mb-3">
+                            <label for="{{ form.customer_notes.id_for_label }}" class="form-label">Notes or Special Requests</label>
+                            {{ form.customer_notes }}
+                        </div>
+                    </div>
+                    
+                    <!-- Price Summary -->
+                    <div class="price-summary">
+                        <h4 class="mb-3">Price Summary</h4>
+                        
+                        <div class="price-item">
+                            <span>Base Rate ({{ car.name }} {{ car.model }})</span>
+                            <span>$<span id="base-price">{{ car.price_per_day }}</span> × <span id="rental-days">1</span> days</span>
+                        </div>
+                        
+                        <div id="gps-price-item" class="price-item" style="display: none;">
+                            <span>GPS Navigation</span>
+                            <span>$<span id="gps-price">{{ additional_options.gps_navigation }}</span> × <span id="gps-days">1</span> days</span>
+                        </div>
+                        
+                        <div id="child-seat-price-item" class="price-item" style="display: none;">
+                            <span>Child Seat</span>
+                            <span>$<span id="child-seat-price">{{ additional_options.child_seat }}</span> × <span id="child-seat-days">1</span> days</span>
+                        </div>
+                        
+                        <div id="additional-driver-price-item" class="price-item" style="display: none;">
+                            <span>Additional Driver</span>
+                            <span>$<span id="additional-driver-price">{{ additional_options.additional_driver }}</span> × <span id="additional-driver-days">1</span> days</span>
+                        </div>
+                        
+                        <div class="price-total">
+                            <span>Total</span>
+                            <span>$<span id="total-price">{{ car.price_per_day }}</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary checkout-btn">
+                            <i class="fas fa-check-circle me-2"></i> Complete Booking
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get form elements
+        const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+        const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+        const gpsCheckbox = document.getElementById('{{ form.gps_navigation.id_for_label }}');
+        const childSeatCheckbox = document.getElementById('{{ form.child_seat.id_for_label }}');
+        const additionalDriverCheckbox = document.getElementById('{{ form.additional_driver.id_for_label }}');
+        
+        // Get price elements
+        const basePriceEl = document.getElementById('base-price');
+        const rentalDaysEl = document.getElementById('rental-days');
+        const totalPriceEl = document.getElementById('total-price');
+        
+        // Additional options price elements
+        const gpsPriceItem = document.getElementById('gps-price-item');
+        const gpsPriceEl = document.getElementById('gps-price');
+        const gpsDaysEl = document.getElementById('gps-days');
+        
+        const childSeatPriceItem = document.getElementById('child-seat-price-item');
+        const childSeatPriceEl = document.getElementById('child-seat-price');
+        const childSeatDaysEl = document.getElementById('child-seat-days');
+        
+        const additionalDriverPriceItem = document.getElementById('additional-driver-price-item');
+        const additionalDriverPriceEl = document.getElementById('additional-driver-price');
+        const additionalDriverDaysEl = document.getElementById('additional-driver-days');
+        
+        // Base price and options prices
+        const basePrice = {{ car.price_per_day }};
+        const gpsPrice = {{ additional_options.gps_navigation }};
+        const childSeatPrice = {{ additional_options.child_seat }};
+        const additionalDriverPrice = {{ additional_options.additional_driver }};
+        
+        // Booked periods data for calendar
+        const bookedPeriods = [
+            {% for period in booked_periods %}
+                {
+                    from: "{{ period.from }}",
+                    to: "{{ period.to }}",
+                    bookingId: {{ period.booking_id }}
+                },
+            {% endfor %}
+        ];
+        
+        // Helper function to calculate days between two dates
+        function calculateDays(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+            return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // Include both start and end days
+        }
+        
+        // Update the price summary
+        function updatePriceSummary() {
+            let days = 1;
+            
+            if (startDateInput.value && endDateInput.value) {
+                days = calculateDays(startDateInput.value, endDateInput.value);
+            }
+            
+            // Update the days in all price items
+            rentalDaysEl.textContent = days;
+            gpsDaysEl.textContent = days;
+            childSeatDaysEl.textContent = days;
+            additionalDriverDaysEl.textContent = days;
+            
+            // Calculate total price
+            let totalPrice = basePrice * days;
+            
+            // Add option prices if selected
+            if (gpsCheckbox.checked) {
+                gpsPriceItem.style.display = 'flex';
+                totalPrice += gpsPrice * days;
+            } else {
+                gpsPriceItem.style.display = 'none';
+            }
+            
+            if (childSeatCheckbox.checked) {
+                childSeatPriceItem.style.display = 'flex';
+                totalPrice += childSeatPrice * days;
+            } else {
+                childSeatPriceItem.style.display = 'none';
+            }
+            
+            if (additionalDriverCheckbox.checked) {
+                additionalDriverPriceItem.style.display = 'flex';
+                totalPrice += additionalDriverPrice * days;
+            } else {
+                additionalDriverPriceItem.style.display = 'none';
+            }
+            
+            // Update total price
+            totalPriceEl.textContent = totalPrice.toFixed(2);
+        }
+        
+        // Set minimum date for start date to today
+        const today = new Date().toISOString().split('T')[0];
+        startDateInput.min = today;
+        
+        // Initialize event listeners
+        startDateInput.addEventListener('change', function() {
+            // Ensure end date is after start date
+            if (endDateInput.value && new Date(endDateInput.value) < new Date(this.value)) {
+                endDateInput.value = this.value;
+            }
+            
+            // Set minimum end date to start date
+            endDateInput.min = this.value;
+            
+            updatePriceSummary();
+        });
+        
+        endDateInput.addEventListener('change', updatePriceSummary);
+        gpsCheckbox.addEventListener('change', updatePriceSummary);
+        childSeatCheckbox.addEventListener('change', updatePriceSummary);
+        additionalDriverCheckbox.addEventListener('change', updatePriceSummary);
+        
+        // Run initial update
+        updatePriceSummary();
+    });
+</script>
+{% endblock %}

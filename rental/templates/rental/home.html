@@ -1,0 +1,227 @@
+{% extends 'rental/base.html' %}
+{% load static %}
+
+{% block title %}Car Rental - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+        <h1 class="hero-title">Rent the Best Cars at Affordable Prices</h1>
+        <p class="hero-subtitle">Experience premium car rental service with our wide selection of vehicles</p>
+        <a href="#booking-form" class="btn-book-now">Book Now</a>
+    </div>
+</section>
+
+<!-- Booking Form Section -->
+<section class="booking-form-section" id="booking-form">
+    <div class="container">
+        <div class="booking-form-container">
+            <h2 class="form-title">Find Your Perfect Rental Car</h2>
+            
+            <form id="car-search-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="pickup-location"><i class="fas fa-map-marker-alt"></i> Pickup Location</label>
+                        <select id="pickup-location" class="form-control">
+                            <option value="" selected disabled>Select pickup location</option>
+                            <option value="airport">Airport</option>
+                            <option value="downtown">Downtown</option>
+                            <option value="north">North Station</option>
+                            <option value="south">South Station</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="drop-location"><i class="fas fa-map-marker-alt"></i> Drop Location</label>
+                        <select id="drop-location" class="form-control">
+                            <option value="" selected disabled>Select drop location</option>
+                            <option value="airport">Airport</option>
+                            <option value="downtown">Downtown</option>
+                            <option value="north">North Station</option>
+                            <option value="south">South Station</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickup-date"><i class="fas fa-calendar-alt"></i> Pickup Date</label>
+                        <input type="date" id="pickup-date" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="return-date"><i class="fas fa-calendar-alt"></i> Return Date</label>
+                        <input type="date" id="return-date" class="form-control">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="car-type"><i class="fas fa-car"></i> Car Type</label>
+                        <select id="car-type" class="form-control">
+                            <option value="" selected disabled>Select car type</option>
+                            <option value="economy">Economy</option>
+                            <option value="compact">Compact</option>
+                            <option value="luxury">Luxury</option>
+                            <option value="suv">SUV</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-search" onclick="window.location.href='{% url 'car_list' %}'">
+                    <i class="fas fa-search"></i> Search Cars
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Cars Section -->
+<section class="featured-cars-section">
+    <div class="container">
+        <h2 class="section-title">Featured Cars</h2>
+        <div class="section-subtitle">Most popular choices by our customers</div>
+        
+        <div class="featured-cars-grid">
+            <div class="car-card">
+                <div class="car-image">
+                    <img src="{% static 'img/cars/luxury1.svg' %}" alt="Mercedes Benz">
+                </div>
+                <div class="car-details">
+                    <h3 class="car-name">Mercedes Benz C-Class</h3>
+                    <div class="car-features">
+                        <span><i class="fas fa-user"></i> 5 Seats</span>
+                        <span><i class="fas fa-cog"></i> Automatic</span>
+                        <span><i class="fas fa-gas-pump"></i> Diesel</span>
+                    </div>
+                    <div class="car-price">
+                        <span class="price-amount">$85</span> / day
+                    </div>
+                    <a href="{% url 'car_list' %}" class="btn-rent-now">Rent Now</a>
+                </div>
+            </div>
+            
+            <div class="car-card">
+                <div class="car-image">
+                    <img src="{% static 'img/cars/luxury2.svg' %}" alt="BMW 5 Series">
+                </div>
+                <div class="car-details">
+                    <h3 class="car-name">BMW 5 Series</h3>
+                    <div class="car-features">
+                        <span><i class="fas fa-user"></i> 5 Seats</span>
+                        <span><i class="fas fa-cog"></i> Automatic</span>
+                        <span><i class="fas fa-gas-pump"></i> Diesel</span>
+                    </div>
+                    <div class="car-price">
+                        <span class="price-amount">$95</span> / day
+                    </div>
+                    <a href="{% url 'car_list' %}" class="btn-rent-now">Rent Now</a>
+                </div>
+            </div>
+            
+            <div class="car-card">
+                <div class="car-image">
+                    <img src="{% static 'img/cars/luxury3.svg' %}" alt="Audi A6">
+                </div>
+                <div class="car-details">
+                    <h3 class="car-name">Audi A6</h3>
+                    <div class="car-features">
+                        <span><i class="fas fa-user"></i> 5 Seats</span>
+                        <span><i class="fas fa-cog"></i> Automatic</span>
+                        <span><i class="fas fa-gas-pump"></i> Diesel</span>
+                    </div>
+                    <div class="car-price">
+                        <span class="price-amount">$90</span> / day
+                    </div>
+                    <a href="{% url 'car_list' %}" class="btn-rent-now">Rent Now</a>
+                </div>
+            </div>
+            
+            <div class="car-card">
+                <div class="car-image">
+                    <img src="{% static 'img/cars/luxury4.svg' %}" alt="Range Rover">
+                </div>
+                <div class="car-details">
+                    <h3 class="car-name">Range Rover Sport</h3>
+                    <div class="car-features">
+                        <span><i class="fas fa-user"></i> 5 Seats</span>
+                        <span><i class="fas fa-cog"></i> Automatic</span>
+                        <span><i class="fas fa-gas-pump"></i> Diesel</span>
+                    </div>
+                    <div class="car-price">
+                        <span class="price-amount">$120</span> / day
+                    </div>
+                    <a href="{% url 'car_list' %}" class="btn-rent-now">Rent Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="why-choose-us-section">
+    <div class="container">
+        <h2 class="section-title">Why Choose Us</h2>
+        <div class="section-subtitle">We offer the best car rental service</div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <h3 class="feature-title">Affordable Prices</h3>
+                <p class="feature-desc">We offer the most competitive rates in the market with no hidden fees.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="feature-title">24/7 Support</h3>
+                <p class="feature-desc">Our customer support team is available round the clock to assist you.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3 class="feature-title">Wide Range of Cars</h3>
+                <p class="feature-desc">Choose from our extensive fleet of vehicles to suit your needs and budget.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3 class="feature-title">Multiple Locations</h3>
+                <p class="feature-desc">Convenient pickup and drop-off points across the city.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default dates (today and tomorrow)
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const pickupDateElem = document.getElementById('pickup-date');
+        const returnDateElem = document.getElementById('return-date');
+        
+        if (pickupDateElem && returnDateElem) {
+            pickupDateElem.valueAsDate = today;
+            returnDateElem.valueAsDate = tomorrow;
+        }
+        
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

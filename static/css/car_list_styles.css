@@ -1,0 +1,328 @@
+/* Enhanced Car Card Styles */
+.luxury-car-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.luxury-car-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Ribbon styles */
+.ribbon-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+}
+
+.ribbon {
+    padding: 8px 15px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    position: relative;
+    transform: translateY(10px) rotate(45deg);
+    width: 150px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.ribbon-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+}
+
+.ribbon-danger {
+    background: linear-gradient(45deg, #dc3545, #fd7e14);
+}
+
+/* Car image wrapper */
+.car-image-wrapper {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: linear-gradient(to right, #e3f2fd, #bbdefb);
+}
+
+.car-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.luxury-car-card:hover .car-image {
+    transform: scale(1.1);
+}
+
+.car-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+    color: #1976d2;
+}
+
+/* Price tag */
+.price-tag {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #2196f3, #1565c0);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+    z-index: 2;
+}
+
+.price-tag .amount {
+    font-size: 18px;
+}
+
+.price-tag .period {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Overlay */
+.car-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.luxury-car-card:hover .car-overlay {
+    opacity: 1;
+}
+
+/* Quick specs */
+.car-quick-specs {
+    display: flex;
+    justify-content: space-between;
+}
+
+.spec-item {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: white;
+}
+
+.spec-item i {
+    margin-right: 5px;
+}
+
+/* Action buttons */
+.car-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-view-details,
+.btn-book-now {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1565c0;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-view-details i,
+.btn-book-now i {
+    margin-right: 5px;
+}
+
+.btn-view-details:hover {
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-book-now {
+    background: #2196f3;
+    color: white;
+}
+
+.btn-book-now:hover {
+    background: #1976d2;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Car details */
+.car-details {
+    padding: 20px;
+    position: relative;
+}
+
+.car-brand-badge {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    background: #1976d2;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.car-name {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 18px;
+    color: #1a1a1a;
+}
+
+.car-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.car-rating .stars {
+    color: #ffc107;
+    margin-right: 10px;
+}
+
+.car-rating span {
+    color: #6c757d;
+}
+
+/* Car highlights */
+.car-highlights {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.highlight {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+}
+
+.highlight i {
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+/* Features grid */
+.car-features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.feature i {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #2196f3;
+}
+
+/* Reserve button */
+.btn-reserve {
+    background: linear-gradient(45deg, #2196f3, #1565c0);
+    color: white;
+    border: none;
+    width: 100%;
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-reserve span {
+    margin-right: 10px;
+}
+
+.btn-reserve:hover {
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(45deg, #1976d2, #0d47a1);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-unavailable {
+    background: linear-gradient(45deg, #9e9e9e, #757575);
+    color: white;
+    border: none;
+    width: 100%;
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
+.btn-unavailable span {
+    margin-right: 10px;
+}
+
+/* Animation classes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-on-scroll.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.fade-in.animated {
+    opacity: 1;
+    transform: translateY(0);
+}

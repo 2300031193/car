@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LuxeDrive | Premium Car Rental{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/modern_theme.css' %}">
+    
+    {% if user.is_staff and request.path|slice:":7" == '/admin-' or request.path|slice:":8" == '/manage-' %}
+    <!-- Admin Theme CSS (only applied for admin users on admin pages) -->
+    <link rel="stylesheet" href="{% static 'css/admin_theme.css' %}">
+    {% endif %}
+    
+    <!-- Additional CSS specific to each page -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top {% if user.is_staff and request.path|slice:":7" == '/admin-' or request.path|slice:":8" == '/manage-' %}admin-navbar{% endif %}">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-car-side"></i> LuxeDrive
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if '/cars/' in request.path %}active{% endif %}" href="{% url 'car_list' %}">
+                            <i class="fas fa-car"></i> Our Fleet
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if '/booking-history/' in request.path %}active{% endif %}" href="{% url 'booking_history' %}">
+                                <i class="fas fa-history"></i> My Bookings
+                            </a>
+                        </li>
+                        
+                        {% if user.is_staff %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-shield"></i> Admin
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'manage_bookings' %}"><i class="fas fa-calendar-check"></i> Manage Bookings</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'add_car' %}"><i class="fas fa-plus-circle"></i> Add Car</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'manage_users' %}"><i class="fas fa-users-cog"></i> Manage Users</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/admin/"><i class="fas fa-cogs"></i> Django Admin</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'booking_history' %}"><i class="fas fa-clipboard-list"></i> My Bookings</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" id="logout-form" class="d-none">
+                                        {% csrf_token %}
+                                    </form>
+                                    <a class="dropdown-item" href="#" onclick="document.getElementById('logout-form').submit(); return false;">
+                                        <i class="fas fa-sign-out-alt"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Status Indicator -->
+    {% if user.is_staff and request.path|slice:":7" == '/admin-' or request.path|slice:":8" == '/manage-' %}
+    <div class="admin-status">
+        <i class="fas fa-shield-alt"></i> Admin Mode
+    </div>
+    {% endif %}
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="row">
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <h5>About LuxeDrive</h5>
+                        <p class="text-white-50">We provide premium car rental services with a wide range of luxury vehicles for all your travel and business needs.</p>
+                    </div>
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <h5>Quick Links</h5>
+                        <div class="footer-links">
+                            <a href="{% url 'home' %}">Home</a>
+                            <a href="{% url 'car_list' %}">Our Fleet</a>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'booking_history' %}">My Bookings</a>
+                            {% else %}
+                                <a href="{% url 'login' %}">Login</a>
+                                <a href="{% url 'register' %}">Register</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Connect With Us</h5>
+                        <div class="social-icons">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                        <p class="mt-3 text-white-50">Have questions? Contact us:</p>
+                        <p class="text-white-50"><i class="fas fa-envelope me-2"></i> info@luxedrive.com</p>
+                        <p class="text-white-50"><i class="fas fa-phone me-2"></i> +1 (555) 123-4567</p>
+                    </div>
+                </div>
+                <hr class="mt-4 mb-4" style="border-color: rgba(255,255,255,0.1);">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <p class="text-white-50">&copy; 2025 LuxeDrive Car Rental. All rights reserved.</p>
+                    <div>
+                        <a href="#" class="text-white-50 me-3">Privacy Policy</a>
+                        <a href="#" class="text-white-50 me-3">Terms of Service</a>
+                        <a href="#" class="text-white-50">FAQ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Animation Handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation on scroll
+            const animateElements = document.querySelectorAll('.fade-in, .slide-in-up, .slide-in-right');
+            
+            const isInViewport = (element) => {
+                const rect = element.getBoundingClientRect();
+                return (
+                    rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
+                    rect.bottom >= 0
+                );
+            };
+            
+            const handleScrollAnimation = () => {
+                animateElements.forEach(element => {
+                    if (isInViewport(element) && !element.classList.contains('animated')) {
+                        element.classList.add('animated');
+                    }
+                });
+            };
+            
+            // Run once on load
+            handleScrollAnimation();
+            
+            // Add event listener
+            window.addEventListener('scroll', handleScrollAnimation);
+            
+            // Initialize tooltips
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(tooltip => {
+                new bootstrap.Tooltip(tooltip);
+            });
+        });
+    </script>
+    
+    <!-- Additional scripts specific to each page -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

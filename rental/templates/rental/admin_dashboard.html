@@ -1,0 +1,231 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Admin Dashboard</h1>
+        <a href="{% url 'add_car' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add New Car
+        </a>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Cars</h6>
+                            <h2 class="mb-0">{{ cars|length }}</h2>
+                        </div>
+                        <i class="fas fa-car fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Available Cars</h6>
+                            <h2 class="mb-0">{{ cars|dictsort:"availability"|length }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Total Bookings</h6>
+                            <h2 class="mb-0">{{ bookings|length }}</h2>
+                        </div>
+                        <i class="fas fa-calendar-check fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Car Availability Status</h6>
+                            <h2 class="mb-0">{{ total_cars }}</h2>
+                            <small class="text-muted">
+                                Available: {{ available_count }} | 
+                                Not Available: {{ unavailable_count }}
+                            </small>
+                        </div>
+                        <i class="fas fa-hourglass-half fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Car Management -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Car Management</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if cars %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Car</th>
+                                        <th>Details</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for car in cars %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if car.image %}
+                                                        <img src="{{ car.image.url }}" alt="{{ car.name }}" class="me-2" style="width: 50px; height: 40px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 50px; height: 40px;">
+                                                            <i class="fas fa-car"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <strong>{{ car.name }}</strong>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span>Model: {{ car.model }}</span><br>
+                                                <small class="text-muted">Plate: {{ car.number_plate }}</small><br>
+                                                <small class="text-muted">Price: ${{ car.price_per_day }}/day</small>
+                                            </td>
+                                            <td>
+                                                {% if car.availability %}
+                                                    <span class="badge bg-success">Available</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Not Available</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{% url 'edit_car' car.id %}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'delete_car' car.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this car?');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <p>No cars have been added yet.</p>
+                            <a href="{% url 'add_car' %}" class="btn btn-primary">Add a Car</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Management -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Bookings</h5>
+                        <a href="{% url 'manage_bookings' %}" class="btn btn-sm btn-light">
+                            <i class="fas fa-tasks"></i> Manage All Bookings
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Car</th>
+                                        <th>Duration</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                        <tr>
+                                            <td>{{ booking.user.username }}</td>
+                                            <td>
+                                                <strong>{{ booking.car.name }}</strong><br>
+                                                <small class="text-muted">{{ booking.car.model }}</small>
+                                            </td>
+                                            <td>
+                                                {{ booking.start_date|date:"M d" }} - {{ booking.end_date|date:"M d, Y" }}
+                                            </td>
+                                            <td>${{ booking.total_price }}</td>
+                                            <td>
+                                                {% if booking.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif booking.status == 'confirmed' %}
+                                                    <span class="badge bg-info">Confirmed</span>
+                                                {% elif booking.status == 'active' %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% elif booking.status == 'completed' %}
+                                                    <span class="badge bg-secondary">Completed</span>
+                                                {% elif booking.status == 'cancelled' %}
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <p>No bookings have been made yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{% url 'add_car' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-plus-circle me-2"></i> Add New Car
+                        </a>
+                        <a href="{% url 'manage_bookings' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-check me-2"></i> Manage Bookings
+                        </a>
+                        <a href="{% url 'manage_users' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users me-2"></i> Manage Users
+                        </a>
+                        <a href="/admin/" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tools me-2"></i> Django Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

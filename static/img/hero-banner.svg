@@ -1,0 +1,52 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <rect width="1600" height="900" fill="url(#paint0_linear)"/>
+  
+  <!-- Car outline -->
+  <path d="M1200 550C1200 550 1150 450 950 450C750 450 650 550 450 550C250 550 200 500 200 500V650H1200V550Z" fill="#1e293b" fill-opacity="0.7"/>
+  <path d="M450 550C550 550 750 450 950 450C1150 450 1200 550 1200 550" stroke="#2563eb" stroke-width="6"/>
+  
+  <!-- Car body -->
+  <path d="M1100 570C1100 570 1050 520 950 520C850 520 800 550 700 550C600 550 550 520 450 520C350 520 300 570 300 570V650H1100V570Z" fill="#2563eb" fill-opacity="0.9"/>
+  
+  <!-- Car windows -->
+  <path d="M950 520C950 520 920 480 850 480C780 480 750 520 750 520" stroke="white" stroke-width="3"/>
+  <path d="M650 520C650 520 620 480 550 480C480 480 450 520 450 520" stroke="white" stroke-width="3"/>
+  
+  <!-- Car wheels -->
+  <circle cx="400" cy="600" r="40" fill="#0f172a"/>
+  <circle cx="400" cy="600" r="25" fill="#334155"/>
+  <circle cx="400" cy="600" r="15" fill="#1e293b"/>
+  
+  <circle cx="1000" cy="600" r="40" fill="#0f172a"/>
+  <circle cx="1000" cy="600" r="25" fill="#334155"/>
+  <circle cx="1000" cy="600" r="15" fill="#1e293b"/>
+  
+  <!-- Car lights -->
+  <path d="M1080 570L1100 570" stroke="#fef3c7" stroke-width="8" stroke-linecap="round"/>
+  <path d="M300 570L320 570" stroke="#ef4444" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Road -->
+  <rect x="0" y="650" width="1600" height="250" fill="#0f172a"/>
+  <rect x="100" y="750" width="100" height="20" fill="white"/>
+  <rect x="300" y="750" width="100" height="20" fill="white"/>
+  <rect x="500" y="750" width="100" height="20" fill="white"/>
+  <rect x="700" y="750" width="100" height="20" fill="white"/>
+  <rect x="900" y="750" width="100" height="20" fill="white"/>
+  <rect x="1100" y="750" width="100" height="20" fill="white"/>
+  <rect x="1300" y="750" width="100" height="20" fill="white"/>
+  <rect x="1500" y="750" width="100" height="20" fill="white"/>
+  
+  <!-- Stylish design elements -->
+  <circle cx="200" cy="200" r="50" fill="#f97316" fill-opacity="0.3"/>
+  <circle cx="1400" cy="300" r="80" fill="#2563eb" fill-opacity="0.2"/>
+  <circle cx="300" cy="400" r="100" fill="#f97316" fill-opacity="0.1"/>
+  <circle cx="1200" cy="200" r="120" fill="#2563eb" fill-opacity="0.1"/>
+  
+  <defs>
+    <linearGradient id="paint0_linear" x1="800" y1="0" x2="800" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+</svg>

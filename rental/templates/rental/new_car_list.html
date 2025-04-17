@@ -1,0 +1,289 @@
+{% extends 'rental/new_base.html' %}
+{% load static %}
+
+{% block title %}Our Premium Fleet | LuxeDrive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-sidebar {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .filter-section {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .filter-heading {
+        font-weight: 600;
+        margin-bottom: var(--spacing-sm);
+        color: var(--neutral-800);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .filter-heading i {
+        color: var(--primary-color);
+        margin-right: var(--spacing-xs);
+    }
+    
+    .filter-group {
+        margin-top: var(--spacing-sm);
+    }
+    
+    .range-slider {
+        width: 100%;
+        margin-top: var(--spacing-md);
+    }
+    
+    .price-inputs {
+        display: flex;
+        gap: var(--spacing-md);
+        margin-top: var(--spacing-sm);
+    }
+    
+    .price-inputs input {
+        width: 100%;
+    }
+    
+    .fleet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .result-count {
+        font-size: 1.1rem;
+        color: var(--neutral-600);
+    }
+    
+    .sort-select {
+        width: auto;
+        min-width: 200px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: var(--spacing-xxl) 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--neutral-300);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .empty-state-title {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-sm);
+        color: var(--neutral-700);
+    }
+    
+    .empty-state-text {
+        color: var(--neutral-600);
+        max-width: 500px;
+        margin: 0 auto var(--spacing-lg);
+    }
+    
+    @media (max-width: 991.98px) {
+        .filter-sidebar {
+            position: static;
+            margin-bottom: var(--spacing-lg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="section-title text-center mb-4">
+        <h1>Our Premium Fleet</h1>
+        <p>Discover our selection of luxury vehicles for any occasion</p>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-sidebar">
+                <h4 class="mb-4">Find Your Perfect Car</h4>
+                
+                <form method="get" action="{% url 'car_list' %}">
+                    <!-- Search Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-heading"><i class="fas fa-search"></i> Search</h5>
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Car name, model..." value="{{ search_query }}">
+                            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Range Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-heading"><i class="fas fa-dollar-sign"></i> Price Range</h5>
+                        <div class="price-inputs">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ min_price }}">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ max_price }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sort Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-heading"><i class="fas fa-sort"></i> Sort By</h5>
+                        <select name="sort" class="form-select">
+                            <option value="" {% if not sort_by %}selected{% endif %}>Default</option>
+                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Availability Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-heading"><i class="fas fa-check-circle"></i> Availability</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="show_all" name="show_all" value="true" {% if show_all %}checked{% endif %}>
+                            <label class="form-check-label" for="show_all">
+                                Show all cars (including unavailable)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Buttons -->
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Apply Filters</button>
+                        <a href="{% url 'car_list' %}" class="btn btn-outline-secondary">Reset Filters</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Car Listing -->
+        <div class="col-lg-9">
+            <!-- Results Header -->
+            <div class="fleet-header">
+                <div class="result-count">
+                    <strong>{{ cars|length }}</strong> vehicles found
+                </div>
+                
+                <!-- Mobile Sort -->
+                <div class="d-flex d-lg-none">
+                    <form method="get" action="{% url 'car_list' %}" class="d-flex">
+                        {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                        {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                        {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                        {% if show_all %}<input type="hidden" name="show_all" value="true">{% endif %}
+                        
+                        <select name="sort" class="form-select sort-select" onchange="this.form.submit()">
+                            <option value="" {% if not sort_by %}selected{% endif %}>Sort by</option>
+                            <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+            
+            {% if cars %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                    {% for car in cars %}
+                    <div class="col fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                        <div class="car-card">
+                            <div class="car-card-header">
+                                {% if car.image %}
+                                    <img src="{{ car.image.url }}" alt="{{ car.name }}" class="car-card-image">
+                                {% else %}
+                                    <div class="car-card-image" style="background: #e0e5ec; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-car fa-3x" style="opacity: 0.3;"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if car.availability %}
+                                    <div class="car-status-badge car-status-available">Available</div>
+                                {% else %}
+                                    <div class="car-status-badge car-status-unavailable">Unavailable</div>
+                                {% endif %}
+                                
+                                <div class="car-price-tag">
+                                    <span class="amount">${{ car.price_per_day }}</span>
+                                    <span class="period">/day</span>
+                                </div>
+                            </div>
+                            
+                            <div class="car-info">
+                                <h4 class="car-name">{{ car.name }} {{ car.model }}</h4>
+                                
+                                <div class="car-meta">
+                                    <div class="car-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                        <span>({{ forloop.counter|add:"10" }})</span>
+                                    </div>
+                                    
+                                    <span class="car-license">{{ car.number_plate }}</span>
+                                </div>
+                                
+                                <div class="car-features">
+                                    <div class="car-feature">
+                                        <i class="fas fa-car"></i>
+                                        <span>Automatic</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fas fa-user-friends"></i>
+                                        <span>5 Seats</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fas fa-suitcase"></i>
+                                        <span>3 Bags</span>
+                                    </div>
+                                    <div class="car-feature">
+                                        <i class="fas fa-snowflake"></i>
+                                        <span>A/C</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="car-action">
+                                    {% if car.availability %}
+                                        <a href="{% url 'book_car' car.id %}" class="btn-book-now">
+                                            <i class="fas fa-calendar-check"></i> Book Now
+                                        </a>
+                                    {% else %}
+                                        <button class="btn-unavailable" disabled>
+                                            <i class="fas fa-ban"></i> Unavailable
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-car-side"></i>
+                    </div>
+                    <h3 class="empty-state-title">No cars found</h3>
+                    <p class="empty-state-text">Sorry, we couldn't find any cars matching your filters. Try changing your search criteria or browse our complete fleet.</p>
+                    <a href="{% url 'car_list' %}" class="btn btn-primary">View All Cars</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

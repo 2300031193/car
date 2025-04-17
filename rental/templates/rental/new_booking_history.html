@@ -1,0 +1,997 @@
+{% extends "rental/new_base.html" %}
+{% load rental_extras %}
+{% load static %}
+
+{% block title %}My Booking Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: var(--spacing-xl) 0;
+    }
+    
+    .dashboard-header {
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .stat-card {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--border-radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: var(--spacing-md);
+    }
+    
+    .stat-title {
+        font-size: var(--small-font-size);
+        color: var(--neutral-500);
+        margin: 0;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--neutral-900);
+        margin: 0;
+    }
+    
+    .stat-card-primary .stat-icon {
+        background-color: rgba(58, 123, 213, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .stat-card-success .stat-icon {
+        background-color: rgba(52, 199, 89, 0.1);
+        color: var(--success);
+    }
+    
+    .stat-card-warning .stat-icon {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: var(--warning);
+    }
+    
+    .stat-card-info .stat-icon {
+        background-color: rgba(0, 201, 219, 0.1);
+        color: var(--info);
+    }
+    
+    .dashboard-tabs {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .booking-card {
+        background-color: white;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: var(--spacing-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    
+    .booking-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .booking-card-header {
+        padding: var(--spacing-md) var(--spacing-lg);
+        background-color: var(--neutral-100);
+        border-bottom: 1px solid var(--neutral-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .booking-status {
+        font-size: var(--small-font-size);
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--border-radius-full);
+    }
+    
+    .status-pending {
+        background-color: var(--warning);
+        color: var(--neutral-900);
+    }
+    
+    .status-confirmed {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .status-active {
+        background-color: var(--success);
+        color: white;
+    }
+    
+    .status-completed {
+        background-color: var(--info);
+        color: white;
+    }
+    
+    .status-cancelled {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .booking-card-body {
+        padding: var(--spacing-lg);
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .booking-car-image {
+        width: 160px;
+        height: 100px;
+        flex-shrink: 0;
+        margin-right: var(--spacing-lg);
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+    }
+    
+    .booking-car-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .booking-car-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--neutral-200);
+        color: var(--neutral-500);
+        font-size: 2rem;
+    }
+    
+    .booking-details {
+        flex: 1;
+    }
+    
+    .booking-car-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: var(--spacing-xs);
+        color: var(--neutral-900);
+    }
+    
+    .booking-car-model {
+        color: var(--neutral-600);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .booking-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--spacing-md);
+    }
+    
+    .booking-info-item {
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .booking-info-label {
+        font-size: var(--small-font-size);
+        color: var(--neutral-600);
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .booking-info-value {
+        font-weight: 500;
+        color: var(--neutral-800);
+    }
+    
+    .booking-card-footer {
+        padding: var(--spacing-md) var(--spacing-lg);
+        background-color: var(--neutral-100);
+        border-top: 1px solid var(--neutral-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .booking-price {
+        font-weight: 600;
+        color: var(--neutral-900);
+    }
+    
+    .booking-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: var(--spacing-xxl) 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--neutral-300);
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .empty-state-title {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-sm);
+        color: var(--neutral-700);
+    }
+    
+    .empty-state-text {
+        color: var(--neutral-600);
+        max-width: 500px;
+        margin: 0 auto var(--spacing-lg);
+    }
+    
+    .timeline-container {
+        padding: var(--spacing-lg) 0;
+    }
+    
+    /* For mobile views */
+    @media (max-width: 767.98px) {
+        .booking-card-body {
+            flex-direction: column;
+        }
+        
+        .booking-car-image {
+            width: 100%;
+            height: 150px;
+            margin-bottom: var(--spacing-md);
+            margin-right: 0;
+        }
+        
+        .booking-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <div class="dashboard-header">
+        <h1>My Booking Dashboard</h1>
+        <p class="text-muted">Manage your rentals, billing, and preferences in one place</p>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card stat-card-primary fade-in">
+            <div class="stat-card-header">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div>
+                    <h5 class="stat-title">Total Bookings</h5>
+                    <p class="stat-value">{{ all_bookings|length }}</p>
+                </div>
+            </div>
+            {% if bookings.last %}
+                <div class="text-muted small">First booking: {{ bookings.last.booking_date|date:"M d, Y" }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="stat-card stat-card-success fade-in" style="animation-delay: 0.1s;">
+            <div class="stat-card-header">
+                <div class="stat-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div>
+                    <h5 class="stat-title">Active Rentals</h5>
+                    <p class="stat-value">{{ active_bookings|length }}</p>
+                </div>
+            </div>
+            {% if favorite_car %}
+                <div class="text-muted small">Favorite car: {{ favorite_car.name }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="stat-card stat-card-warning fade-in" style="animation-delay: 0.2s;">
+            <div class="stat-card-header">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div>
+                    <h5 class="stat-title">Total Spent</h5>
+                    <p class="stat-value">${{ total_spent|default:"0" }}</p>
+                </div>
+            </div>
+            <div class="text-muted small">Loyalty points: {{ all_bookings|length|floatformat:0|add:"450" }}</div>
+        </div>
+        
+        <div class="stat-card stat-card-info fade-in" style="animation-delay: 0.3s;">
+            <div class="stat-card-header">
+                <div class="stat-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <div>
+                    <h5 class="stat-title">Carbon Offset</h5>
+                    <p class="stat-value">{{ all_bookings|length|floatformat:0|add:"120" }} kg</p>
+                </div>
+            </div>
+            <div class="text-muted small">Green Status: Silver</div>
+        </div>
+    </div>
+    
+    <!-- Booking Tabs -->
+    <div class="dashboard-tabs">
+        <ul class="nav nav-tabs" id="bookingTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-bookings" 
+                    type="button" role="tab" aria-controls="all-bookings" aria-selected="true">
+                    All Bookings <span class="badge bg-primary">{{ all_bookings|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming-bookings" 
+                    type="button" role="tab" aria-controls="upcoming-bookings" aria-selected="false">
+                    Upcoming <span class="badge bg-info">{{ upcoming_bookings|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active-bookings" 
+                    type="button" role="tab" aria-controls="active-bookings" aria-selected="false">
+                    Active <span class="badge bg-success">{{ active_bookings|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past-bookings" 
+                    type="button" role="tab" aria-controls="past-bookings" aria-selected="false">
+                    Completed <span class="badge bg-secondary">{{ past_bookings|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled-bookings" 
+                    type="button" role="tab" aria-controls="cancelled-bookings" aria-selected="false">
+                    Cancelled <span class="badge bg-danger">{{ cancelled_bookings|length }}</span>
+                </button>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="bookingTabsContent">
+        <!-- All Bookings Tab -->
+        <div class="tab-pane fade show active" id="all-bookings" role="tabpanel" aria-labelledby="all-tab">
+            {% if all_bookings %}
+                {% for booking in all_bookings %}
+                    <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                        <div class="booking-card-header">
+                            <div>
+                                <strong>Booking #{{ booking.id }}</strong>
+                                <span class="text-muted ms-2">{{ booking.booking_date|date:"F j, Y" }}</span>
+                            </div>
+                            
+                            <div>
+                                {% if booking.status == 'pending' %}
+                                    <span class="booking-status status-pending">
+                                        <i class="fas fa-clock me-1"></i> Pending
+                                    </span>
+                                {% elif booking.status == 'confirmed' %}
+                                    <span class="booking-status status-confirmed">
+                                        <i class="fas fa-check me-1"></i> Confirmed
+                                    </span>
+                                {% elif booking.status == 'active' %}
+                                    <span class="booking-status status-active">
+                                        <i class="fas fa-car me-1"></i> Active
+                                    </span>
+                                {% elif booking.status == 'completed' %}
+                                    <span class="booking-status status-completed">
+                                        <i class="fas fa-flag-checkered me-1"></i> Completed
+                                    </span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="booking-status status-cancelled">
+                                        <i class="fas fa-times me-1"></i> Cancelled
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-body">
+                            <div class="booking-car-image">
+                                {% if booking.car.image %}
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}">
+                                {% else %}
+                                    <div class="booking-car-placeholder">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="booking-details">
+                                <h4 class="booking-car-name">{{ booking.car.name }}</h4>
+                                <div class="booking-car-model">{{ booking.car.model }}</div>
+                                
+                                <div class="booking-info-grid">
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-calendar-alt text-primary me-1"></i> Rental Period
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-map-marker-alt text-primary me-1"></i> Pickup Location
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.pickup_location %}
+                                                {{ booking.pickup_location.name }}
+                                            {% else %}
+                                                Main Office
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-clock text-primary me-1"></i> Duration
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.get_duration_days }} days
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-credit-card text-primary me-1"></i> Payment
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.payment_method %}
+                                                {{ booking.payment_method|title }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                            
+                                            {% if booking.payment_status %}
+                                                <span class="ms-2 badge bg-success">Paid</span>
+                                            {% else %}
+                                                <span class="ms-2 badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-footer">
+                            <div class="booking-price">
+                                Total: ${{ booking.total_price }}
+                            </div>
+                            
+                            <div class="booking-actions">
+                                {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-times-circle"></i> Cancel
+                                    </button>
+                                {% endif %}
+                                
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                                
+                                {% if booking.status == 'completed' %}
+                                    <button class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-star"></i> Rate
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-car-side"></i>
+                    </div>
+                    <h3 class="empty-state-title">No bookings yet</h3>
+                    <p class="empty-state-text">You haven't made any bookings yet. Explore our fleet and find your perfect ride.</p>
+                    <a href="{% url 'car_list' %}" class="btn btn-primary">View Available Cars</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Upcoming Bookings Tab -->
+        <div class="tab-pane fade" id="upcoming-bookings" role="tabpanel" aria-labelledby="upcoming-tab">
+            {% if upcoming_bookings %}
+                {% for booking in upcoming_bookings %}
+                    <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                        <div class="booking-card-header">
+                            <div>
+                                <strong>Booking #{{ booking.id }}</strong>
+                                <span class="text-muted ms-2">{{ booking.booking_date|date:"F j, Y" }}</span>
+                            </div>
+                            
+                            <div>
+                                <span class="booking-status status-confirmed">
+                                    <i class="fas fa-check me-1"></i> Confirmed
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-body">
+                            <div class="booking-car-image">
+                                {% if booking.car.image %}
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}">
+                                {% else %}
+                                    <div class="booking-car-placeholder">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="booking-details">
+                                <h4 class="booking-car-name">{{ booking.car.name }}</h4>
+                                <div class="booking-car-model">{{ booking.car.model }}</div>
+                                
+                                <div class="booking-info-grid">
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-calendar-alt text-primary me-1"></i> Rental Period
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-map-marker-alt text-primary me-1"></i> Pickup Location
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.pickup_location %}
+                                                {{ booking.pickup_location.name }}
+                                            {% else %}
+                                                Main Office
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-clock text-primary me-1"></i> Countdown
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.days_until_pickup }} days until pickup
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-credit-card text-primary me-1"></i> Payment
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.payment_method %}
+                                                {{ booking.payment_method|title }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                            
+                                            {% if booking.payment_status %}
+                                                <span class="ms-2 badge bg-success">Paid</span>
+                                            {% else %}
+                                                <span class="ms-2 badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-footer">
+                            <div class="booking-price">
+                                Total: ${{ booking.total_price }}
+                            </div>
+                            
+                            <div class="booking-actions">
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-times-circle"></i> Cancel
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-map-marked-alt"></i> Get Directions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="empty-state-title">No upcoming bookings</h3>
+                    <p class="empty-state-text">You don't have any upcoming bookings. Ready for your next adventure?</p>
+                    <a href="{% url 'car_list' %}" class="btn btn-primary">Book a Car</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Active Bookings Tab -->
+        <div class="tab-pane fade" id="active-bookings" role="tabpanel" aria-labelledby="active-tab">
+            {% if active_bookings %}
+                {% for booking in active_bookings %}
+                    <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                        <div class="booking-card-header">
+                            <div>
+                                <strong>Booking #{{ booking.id }}</strong>
+                                <span class="text-muted ms-2">{{ booking.booking_date|date:"F j, Y" }}</span>
+                            </div>
+                            
+                            <div>
+                                <span class="booking-status status-active">
+                                    <i class="fas fa-car me-1"></i> Active
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-body">
+                            <div class="booking-car-image">
+                                {% if booking.car.image %}
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}">
+                                {% else %}
+                                    <div class="booking-car-placeholder">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="booking-details">
+                                <h4 class="booking-car-name">{{ booking.car.name }}</h4>
+                                <div class="booking-car-model">{{ booking.car.model }}</div>
+                                
+                                <div class="booking-info-grid">
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-calendar-alt text-primary me-1"></i> Rental Period
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-map-marker-alt text-primary me-1"></i> Return Location
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.return_location %}
+                                                {{ booking.return_location.name }}
+                                            {% else %}
+                                                Main Office
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-clock text-primary me-1"></i> Return By
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.end_date|date:"M d, Y" }}
+                                            {% if booking.return_time %} at {{ booking.return_time }}{% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-credit-card text-primary me-1"></i> Payment
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.payment_method %}
+                                                {{ booking.payment_method|title }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                            
+                                            {% if booking.payment_status %}
+                                                <span class="ms-2 badge bg-success">Paid</span>
+                                            {% else %}
+                                                <span class="ms-2 badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-footer">
+                            <div class="booking-price">
+                                Total: ${{ booking.total_price }}
+                            </div>
+                            
+                            <div class="booking-actions">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-car-crash"></i> Report Issue
+                                </button>
+                                <button class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-hourglass-half"></i> Extend Rental
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-map-marked-alt"></i> Return Directions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-car-side"></i>
+                    </div>
+                    <h3 class="empty-state-title">No active rentals</h3>
+                    <p class="empty-state-text">You don't have any active rentals at the moment.</p>
+                    <a href="{% url 'car_list' %}" class="btn btn-primary">Book a Car</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Past Bookings Tab -->
+        <div class="tab-pane fade" id="past-bookings" role="tabpanel" aria-labelledby="past-tab">
+            {% if past_bookings %}
+                {% for booking in past_bookings %}
+                    <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                        <div class="booking-card-header">
+                            <div>
+                                <strong>Booking #{{ booking.id }}</strong>
+                                <span class="text-muted ms-2">{{ booking.booking_date|date:"F j, Y" }}</span>
+                            </div>
+                            
+                            <div>
+                                <span class="booking-status status-completed">
+                                    <i class="fas fa-flag-checkered me-1"></i> Completed
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-body">
+                            <div class="booking-car-image">
+                                {% if booking.car.image %}
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}">
+                                {% else %}
+                                    <div class="booking-car-placeholder">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="booking-details">
+                                <h4 class="booking-car-name">{{ booking.car.name }}</h4>
+                                <div class="booking-car-model">{{ booking.car.model }}</div>
+                                
+                                <div class="booking-info-grid">
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-calendar-alt text-primary me-1"></i> Rental Period
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-map-marker-alt text-primary me-1"></i> Pickup Location
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.pickup_location %}
+                                                {{ booking.pickup_location.name }}
+                                            {% else %}
+                                                Main Office
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-clock text-primary me-1"></i> Duration
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.get_duration_days }} days
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-credit-card text-primary me-1"></i> Payment
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.payment_method %}
+                                                {{ booking.payment_method|title }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                            
+                                            {% if booking.payment_status %}
+                                                <span class="ms-2 badge bg-success">Paid</span>
+                                            {% else %}
+                                                <span class="ms-2 badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-footer">
+                            <div class="booking-price">
+                                Total: ${{ booking.total_price }}
+                            </div>
+                            
+                            <div class="booking-actions">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-receipt"></i> Get Invoice
+                                </button>
+                                <button class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-star"></i> Rate
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-redo"></i> Book Again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="empty-state-title">No completed rentals</h3>
+                    <p class="empty-state-text">You don't have any completed rentals in your history.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Cancelled Bookings Tab -->
+        <div class="tab-pane fade" id="cancelled-bookings" role="tabpanel" aria-labelledby="cancelled-tab">
+            {% if cancelled_bookings %}
+                {% for booking in cancelled_bookings %}
+                    <div class="booking-card fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                        <div class="booking-card-header">
+                            <div>
+                                <strong>Booking #{{ booking.id }}</strong>
+                                <span class="text-muted ms-2">{{ booking.booking_date|date:"F j, Y" }}</span>
+                            </div>
+                            
+                            <div>
+                                <span class="booking-status status-cancelled">
+                                    <i class="fas fa-times me-1"></i> Cancelled
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-body">
+                            <div class="booking-car-image">
+                                {% if booking.car.image %}
+                                    <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}">
+                                {% else %}
+                                    <div class="booking-car-placeholder">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="booking-details">
+                                <h4 class="booking-car-name">{{ booking.car.name }}</h4>
+                                <div class="booking-car-model">{{ booking.car.model }}</div>
+                                
+                                <div class="booking-info-grid">
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-calendar-alt text-primary me-1"></i> Planned Period
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.start_date|date:"M d, Y" }} to {{ booking.end_date|date:"M d, Y" }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-map-marker-alt text-primary me-1"></i> Pickup Location
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.pickup_location %}
+                                                {{ booking.pickup_location.name }}
+                                            {% else %}
+                                                Main Office
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-clock text-primary me-1"></i> Planned Duration
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {{ booking.get_duration_days }} days
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-info-item">
+                                        <div class="booking-info-label">
+                                            <i class="fas fa-credit-card text-primary me-1"></i> Payment
+                                        </div>
+                                        <div class="booking-info-value">
+                                            {% if booking.payment_method %}
+                                                {{ booking.payment_method|title }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                            
+                                            <span class="ms-2 badge bg-danger">Cancelled</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="booking-card-footer">
+                            <div class="booking-price">
+                                Total: ${{ booking.total_price }}
+                            </div>
+                            
+                            <div class="booking-actions">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-redo"></i> Book Again
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <h3 class="empty-state-title">No cancelled bookings</h3>
+                    <p class="empty-state-text">You don't have any cancelled bookings. Great!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any dashboard-specific JavaScript here
+    });
+</script>
+{% endblock %}

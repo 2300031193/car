@@ -1,0 +1,307 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}Available Cars{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="section-title text-center">
+        <div class="title-badge animate-on-scroll fade-in">Our Collection</div>
+        <h2 class="animate-on-scroll fade-in">Available Cars</h2>
+        <p class="animate-on-scroll fade-in">Choose from our premium selection of luxury vehicles</p>
+        <div class="title-underline animate-on-scroll fade-in"></div>
+    </div>
+    
+    <!-- Enhanced Search and Filter -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-sm animate-on-scroll fade-in">
+                <div class="card-body p-4">
+                    <form class="row g-3" method="get">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #3A7D44; color: white;"><i class="fas fa-search"></i></span>
+                                <input type="text" name="search" class="form-control" placeholder="Search car name or model" value="{{ search_query }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="background-color: #3A7D44; color: white;"><i class="fas fa-dollar-sign"></i></span>
+                                        <input type="number" name="min_price" class="form-control" placeholder="Min price" min="0" value="{{ min_price }}">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="background-color: #3A7D44; color: white;"><i class="fas fa-dollar-sign"></i></span>
+                                        <input type="number" name="max_price" class="form-control" placeholder="Max price" min="0" value="{{ max_price }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn w-100" style="background-color: #3A7D44; color: white;"><i class="fas fa-filter"></i> Filter</button>
+                        </div>
+                        
+                        <!-- Additional Filter Options -->
+                        <div class="col-md-12 mt-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="show_all" id="showAll" value="true" {% if show_all %}checked{% endif %}>
+                                    <label class="form-check-label" for="showAll">Show all cars (including unavailable)</label>
+                                </div>
+                                
+                                <div class="d-flex align-items-center">
+                                    <label class="me-2">Sort by:</label>
+                                    <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+                                        <option value="" {% if not sort_by %}selected{% endif %}>Default</option>
+                                        <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price (Low to High)</option>
+                                        <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price (High to Low)</option>
+                                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name (A-Z)</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <a href="{% url 'car_list' %}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-sync-alt"></i> Reset Filters
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Results Summary -->
+    {% if search_query or min_price or max_price or show_all %}
+    <div class="search-results-summary mb-4 animate-on-scroll fade-in">
+        <div class="alert alert-info">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Search Results:</strong> 
+                    {% if search_query %}<span class="badge bg-primary me-2">Search: "{{ search_query }}"</span>{% endif %}
+                    {% if min_price %}<span class="badge bg-primary me-2">Min Price: ${{ min_price }}</span>{% endif %}
+                    {% if max_price %}<span class="badge bg-primary me-2">Max Price: ${{ max_price }}</span>{% endif %}
+                    {% if show_all %}<span class="badge bg-primary me-2">Showing All Cars</span>{% endif %}
+                    {% if sort_by %}<span class="badge bg-primary me-2">
+                        Sorted by: 
+                        {% if sort_by == 'price_low' %}Price (Low to High)
+                        {% elif sort_by == 'price_high' %}Price (High to Low)
+                        {% elif sort_by == 'name' %}Name (A-Z)
+                        {% endif %}
+                    </span>{% endif %}
+                </div>
+                <div>
+                    <span class="badge bg-success">{{ cars|length }} results found</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% if cars %}
+            {% for car in cars %}
+            <div class="col">
+                <div class="luxury-car-card h-100 animate-on-scroll fade-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;">
+                    <div class="ribbon-wrapper">
+                        {% if car.availability %}
+                            <div class="ribbon ribbon-success">Available</div>
+                        {% else %}
+                            <div class="ribbon ribbon-danger">Booked</div>
+                        {% endif %}
+                    </div>
+                    <div class="car-image-wrapper">
+                        {% if car.image %}
+                            <img src="{{ car.image.url }}" class="car-image" alt="{{ car.name }} {{ car.model }}">
+                        {% else %}
+                            <div class="car-image-placeholder">
+                                <i class="fas fa-car fa-5x"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="price-tag">
+                            <span class="amount">${{ car.price_per_day }}</span>
+                            <span class="period">/day</span>
+                        </div>
+                        
+                        <div class="car-overlay">
+                            <div class="car-quick-specs">
+                                <div class="spec-item">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <span>Automatic</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-user-friends"></i>
+                                    <span>5 Seats</span>
+                                </div>
+                                <div class="spec-item">
+                                    <i class="fas fa-suitcase"></i>
+                                    <span>3 Bags</span>
+                                </div>
+                            </div>
+                            
+                            <div class="car-actions">
+                                <a href="{% url 'book_car' car.id %}" class="btn-view-details">
+                                    <i class="fas fa-info-circle"></i> Details
+                                </a>
+                                {% if car.availability %}
+                                <a href="{% url 'book_car' car.id %}" class="btn-book-now">
+                                    <i class="fas fa-calendar-check"></i> Book Now
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="car-details">
+                        <div class="car-brand-badge">
+                            <span>{{ car.name }}</span>
+                        </div>
+                        
+                        <h4 class="car-name">{{ car.name }} {{ car.model }}</h4>
+                        
+                        <div class="car-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span>({{ forloop.counter|add:"10" }} reviews)</span>
+                        </div>
+                        
+                        <div class="car-highlights">
+                            <div class="highlight">
+                                <i class="fas fa-id-card text-primary"></i>
+                                <span>{{ car.number_plate }}</span>
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-gas-pump text-success"></i>
+                                <span>Fuel Efficient</span>
+                            </div>
+                            <div class="highlight">
+                                <i class="fas fa-bluetooth text-info"></i>
+                                <span>Bluetooth</span>
+                            </div>
+                        </div>
+                        
+                        <div class="car-features-grid">
+                            <div class="feature">
+                                <i class="fas fa-car"></i>
+                                <span>GPS</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-snowflake"></i>
+                                <span>A/C</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-music"></i>
+                                <span>Audio</span>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-lock"></i>
+                                <span>Security</span>
+                            </div>
+                        </div>
+                        
+                        {% if car.availability %}
+                        <a href="{% url 'book_car' car.id %}" class="btn-reserve">
+                            <span>Reserve Now</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        {% else %}
+                        <button class="btn-unavailable" disabled>
+                            <span>Currently Booked</span>
+                            <i class="fas fa-ban"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">No Cars Found!</h4>
+                    <p>No cars match your search criteria. Please try different search parameters or reset filters.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination - Only show if we have results -->
+    {% if cars %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    <!-- Newsletter Signup -->
+    <div class="my-5 p-4 rounded-4 text-center cta-section animate-on-scroll fade-in">
+        <h3 class="mb-3">Subscribe for Special Offers</h3>
+        <p class="mb-4">Get notified about promotions and discounts on our premium vehicles</p>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form class="d-flex">
+                    <input type="email" class="form-control me-2" placeholder="Your email address">
+                    <button type="submit" class="btn cta-btn">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="cta-particles">
+            <div class="particle p1"></div>
+            <div class="particle p2"></div>
+            <div class="particle p3"></div>
+            <div class="particle p4"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Intersection Observer for Animation on Scroll -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animation on scroll
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const isInViewport = (element) => {
+            const rect = element.getBoundingClientRect();
+            return (
+                rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
+                rect.bottom >= 0
+            );
+        };
+        
+        const handleScrollAnimation = () => {
+            animateElements.forEach(element => {
+                if (isInViewport(element) && !element.classList.contains('animated')) {
+                    element.classList.add('animated');
+                }
+            });
+        };
+        
+        // Run once on load
+        handleScrollAnimation();
+        
+        // Add event listener
+        window.addEventListener('scroll', handleScrollAnimation);
+    });
+</script>
+{% endblock %}

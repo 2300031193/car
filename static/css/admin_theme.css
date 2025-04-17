@@ -1,0 +1,135 @@
+/* Admin Theme - Custom styles for admin users */
+
+/* Admin Navbar */
+.admin-navbar {
+    background-color: #212529 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-navbar .navbar-brand,
+.admin-navbar .nav-link,
+.admin-navbar .dropdown-toggle {
+    color: #fff !important;
+}
+
+.admin-navbar .navbar-brand i {
+    color: #3a7bd5;
+}
+
+.admin-navbar .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.admin-navbar .navbar-toggler-icon {
+    filter: brightness(5);
+}
+
+/* Admin Dropdown Styling */
+.admin-navbar .dropdown-menu {
+    background-color: #2d3338;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.admin-navbar .dropdown-item {
+    color: #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.admin-navbar .dropdown-item:hover {
+    background-color: #3a7bd5;
+    color: #fff;
+}
+
+.admin-navbar .dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Admin Status Badge */
+.admin-status {
+    position: fixed;
+    top: 70px;
+    right: 10px;
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+/* Admin Panel Section Styles */
+.admin-section {
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.admin-section-title {
+    border-bottom: 2px solid #3a7bd5;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #212529;
+    font-weight: 600;
+}
+
+.admin-card {
+    border: none;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.admin-card-header {
+    background-color: #343a40;
+    color: white;
+    border: none;
+}
+
+/* Admin Action Buttons */
+.admin-btn-primary {
+    background-color: #3a7bd5;
+    border-color: #3a7bd5;
+}
+
+.admin-btn-primary:hover {
+    background-color: #2c61b5;
+    border-color: #2c61b5;
+}
+
+.admin-btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.admin-btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Active Admin Link */
+.admin-navbar .nav-link.active {
+    background-color: #3a7bd5;
+    border-radius: 5px;
+}
+
+/* Admin User Greeting */
+.admin-greeting {
+    display: inline-block;
+    background: linear-gradient(45deg, #3a7bd5, #12c2e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+    margin-right: 15px;
+}

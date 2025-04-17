@@ -1,0 +1,1165 @@
+{% extends "rental/base.html" %}
+{% load rental_extras %}
+{% load static %}
+
+{% block title %}My Booking Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-5 booking-history-container">
+    <div class="section-title text-center animate-on-scroll fade-in">
+        <div class="title-badge pulse-animation">Your Personal Dashboard</div>
+        <h2 class="text-reveal">My Booking Dashboard</h2>
+        <p class="lead typing-animation">Manage your rentals, billing, and preferences in one place</p>
+        <div class="title-underline grow-animation"></div>
+    </div>
+    
+    <!-- Interactive Feature Tabs -->
+    <div class="dashboard-tabs animate-on-scroll fade-in">
+        <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="bookings-tab" data-bs-toggle="tab" data-bs-target="#bookings" 
+                    type="button" role="tab" aria-controls="bookings" aria-selected="true">
+                    <i class="fas fa-calendar-check"></i> My Bookings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing" 
+                    type="button" role="tab" aria-controls="billing" aria-selected="false">
+                    <i class="fas fa-file-invoice-dollar"></i> Billing
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" 
+                    type="button" role="tab" aria-controls="preferences" aria-selected="false">
+                    <i class="fas fa-sliders-h"></i> Preferences
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="green-rentals-tab" data-bs-toggle="tab" data-bs-target="#green-rentals" 
+                    type="button" role="tab" aria-controls="green-rentals" aria-selected="false">
+                    <i class="fas fa-leaf"></i> Green Rentals
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tools-tab" data-bs-toggle="tab" data-bs-target="#tools" 
+                    type="button" role="tab" aria-controls="tools" aria-selected="false">
+                    <i class="fas fa-tools"></i> Tools
+                </button>
+            </li>
+        </ul>
+    </div>
+    
+    {% if all_bookings %}
+    <div class="tab-content" id="dashboardTabContent">
+        <!-- Bookings Tab -->
+        <div class="tab-pane fade show active" id="bookings" role="tabpanel" aria-labelledby="bookings-tab">
+            <!-- Dashboard Stats Cards -->
+            <div class="dashboard-stats mb-5">
+                <div class="stat-card-3d animate-on-scroll rotate-in-left">
+                    <div class="stat-card-inner">
+                        <div class="stat-card-front">
+                            <div class="stat-icon pulse-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <p>Total Bookings</p>
+                            <h3 class="counter">{{ all_bookings|length }}</h3>
+                        </div>
+                        <div class="stat-card-back">
+                            <p>Your first booking was on</p>
+                            <h4>{{ bookings.last.booking_date|date:"M d, Y" }}</h4>
+                            <p class="small">Keep going!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card-3d animate-on-scroll flip-in-y" style="animation-delay: 0.2s;">
+                    <div class="stat-card-inner">
+                        <div class="stat-card-front">
+                            <div class="stat-icon pulse-icon">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <p>Active Rentals</p>
+                            <h3 class="counter">{{ active_bookings|length }}</h3>
+                        </div>
+                        <div class="stat-card-back">
+                            <p>Your favorite car</p>
+                            <h4>{{ bookings.0.car.name }}</h4>
+                            <p class="small">Great choice!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card-3d animate-on-scroll rotate-in-right" style="animation-delay: 0.4s;">
+                    <div class="stat-card-inner">
+                        <div class="stat-card-front">
+                            <div class="stat-icon pulse-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <p>Total Spent</p>
+                            <h3>$<span class="counter">{{ total_spent|default:"0" }}</span></h3>
+                        </div>
+                        <div class="stat-card-back">
+                            <p>Loyalty points</p>
+                            <h4>{{ all_bookings|length|floatformat:0|add:"450" }}</h4>
+                            <p class="small">Redeem for rewards!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card-3d animate-on-scroll rotate-in-right" style="animation-delay: 0.6s;">
+                    <div class="stat-card-inner">
+                        <div class="stat-card-front">
+                            <div class="stat-icon pulse-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <p>Carbon Offset</p>
+                            <h3><span class="counter">{{ all_bookings|length|floatformat:0|add:"120" }}</span> kg</h3>
+                        </div>
+                        <div class="stat-card-back">
+                            <p>Green Status</p>
+                            <h4>Silver</h4>
+                            <p class="small">Eco-friendly rentals!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Action Buttons -->
+            <div class="quick-actions mb-4 animate-on-scroll fade-in">
+                <button type="button" class="btn btn-primary action-button ripple-effect">
+                    <i class="fas fa-plus-circle"></i> New Booking
+                </button>
+                <button type="button" class="btn btn-success action-button ripple-effect">
+                    <i class="fas fa-tasks"></i> Compare Cars
+                </button>
+                <button type="button" class="btn btn-info action-button ripple-effect">
+                    <i class="fas fa-map-marked-alt"></i> View Locations
+                </button>
+                <button type="button" class="btn btn-warning action-button ripple-effect">
+                    <i class="fas fa-bell"></i> Set Alerts
+                </button>
+                <button type="button" class="btn btn-secondary action-button ripple-effect">
+                    <i class="fas fa-calendar-alt"></i> View Calendar
+                </button>
+            </div>
+            
+            <!-- Booking Status Filter -->
+            <div class="booking-filters mb-4 animate-on-scroll slide-in-up">
+                <div class="filter-label">
+                    <i class="fas fa-filter"></i> Filter by status:
+                </div>
+                <div class="status-filter">
+                    <button type="button" class="filter-btn active" data-filter="all">
+                        All ({{ all_bookings|length }})
+                    </button>
+                    <button type="button" class="filter-btn" data-filter="upcoming">
+                        Upcoming ({{ upcoming_bookings|length }})
+                    </button>
+                    <button type="button" class="filter-btn" data-filter="active">
+                        Active ({{ active_bookings|length }})
+                    </button>
+                    <button type="button" class="filter-btn" data-filter="completed">
+                        Completed ({{ past_bookings|length }})
+                    </button>
+                    <button type="button" class="filter-btn" data-filter="cancelled">
+                        Cancelled ({{ cancelled_bookings|length }})
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Next Booking Feature -->
+            {% if next_booking %}
+            <div class="next-booking-container animate-on-scroll slide-in-up">
+                <h3 class="section-heading floating-element"><i class="fas fa-calendar-day"></i> Your Next Adventure</h3>
+                <div class="next-booking-card hover-glow">
+                    <div class="particles-background">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                    <div class="next-booking-countdown">
+                        <div class="countdown-circle pulse-slow">
+                            <svg class="countdown-svg" viewBox="0 0 100 100">
+                                <circle class="countdown-circle-bg" cx="50" cy="50" r="45"></circle>
+                                <circle class="countdown-circle-progress" cx="50" cy="50" r="45"></circle>
+                            </svg>
+                            <div class="countdown-time" data-date="{{ next_booking.start_date|date:'Y/m/d' }}">
+                                <span class="days">{{ next_booking.days_until_pickup }}</span>
+                                <span class="countdown-label">days</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="next-booking-details">
+                        <h4 class="slide-in-right">{{ next_booking.car.name }} {{ next_booking.car.model }}</h4>
+                        <p class="next-booking-date slide-in-right" style="animation-delay: 0.1s;">
+                            <i class="fas fa-calendar-alt"></i> {{ next_booking.start_date|date:"l, F j, Y" }} 
+                            {% if next_booking.pickup_time %}at {{ next_booking.pickup_time }}{% else %}at 10:00 AM{% endif %}
+                        </p>
+                        <p class="next-booking-location slide-in-right" style="animation-delay: 0.2s;">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            {% if next_booking.pickup_location %}
+                                {{ next_booking.pickup_location.name }}, {{ next_booking.pickup_location.address }}
+                            {% else %}
+                                Main Office, 123 Rental Street
+                            {% endif %}
+                        </p>
+                        <div class="next-booking-weather slide-in-right" style="animation-delay: 0.3s;">
+                            <i class="fas fa-sun"></i> Expected Weather: Sunny, 75°F
+                        </div>
+                        <div class="next-booking-actions slide-in-right" style="animation-delay: 0.4s;">
+                            <a href="#" class="btn btn-sm btn-outline-primary ripple-effect">
+                                <i class="fas fa-map-marked-alt"></i> Get Directions
+                            </a>
+                            <a href="#" class="btn btn-sm btn-primary ripple-effect">
+                                <i class="fas fa-edit"></i> Modify
+                            </a>
+                            <a href="#" class="btn btn-sm btn-success ripple-effect">
+                                <i class="fas fa-check-circle"></i> Confirm
+                            </a>
+                        </div>
+                    </div>
+                    <div class="next-booking-image">
+                        {% if next_booking.car.image %}
+                            <img src="{{ next_booking.car.image.url }}" alt="{{ next_booking.car.name }}" class="zoom-on-hover">
+                        {% else %}
+                            <div class="car-placeholder-large">
+                                <i class="fas fa-car-side"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Interactive Booking Timeline -->
+            <div class="booking-timeline-container animate-on-scroll scale-in">
+                <h3 class="timeline-header floating-element"><i class="fas fa-history"></i> Your Booking Timeline</h3>
+                <div class="booking-timeline">
+                    {% for booking in all_bookings %}
+                        <div class="timeline-item {% if forloop.counter|divisibleby:2 %}timeline-right{% else %}timeline-left{% endif %} animate-on-scroll fade-in booking-status-{{ booking.status }}" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms;" data-status="{{ booking.status }}">
+                            <div class="timeline-content">
+                                <div class="timeline-date glow-effect">
+                                    {{ booking.start_date|date:"M d, Y" }} - {{ booking.end_date|date:"M d, Y" }}
+                                </div>
+                                <div class="timeline-card hover-float">
+                                    <div class="timeline-image">
+                                        {% if booking.car.image %}
+                                            <img src="{{ booking.car.image.url }}" alt="{{ booking.car.name }}" class="rounded zoom-on-hover">
+                                        {% else %}
+                                            <div class="car-placeholder">
+                                                <i class="fas fa-car"></i>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="booking-status">
+                                            {% if booking.status == 'cancelled' %}
+                                                <span class="status-badge status-cancelled">
+                                                    <i class="fas fa-times-circle"></i> Cancelled
+                                                </span>
+                                            {% elif booking.is_upcoming %}
+                                                <span class="status-badge status-upcoming pulse-animation">
+                                                    <i class="fas fa-hourglass-start"></i> Upcoming
+                                                </span>
+                                            {% elif booking.is_active %}
+                                                <span class="status-badge status-active shimmer-effect">
+                                                    <i class="fas fa-car-side"></i> Active
+                                                </span>
+                                            {% else %}
+                                                <span class="status-badge status-completed">
+                                                    <i class="fas fa-check-circle"></i> Completed
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="timeline-details">
+                                        <h4>{{ booking.car.name }} {{ booking.car.model }}</h4>
+                                        <p class="text-muted">{{ booking.car.number_plate }}</p>
+                                        
+                                        <div class="booking-info appear-animation">
+                                            <div class="info-item">
+                                                <i class="fas fa-calendar-day text-primary"></i>
+                                                <span>{{ booking.get_duration_days }} days</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <i class="fas fa-dollar-sign text-success"></i>
+                                                <span>${{ booking.total_price }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                {% if booking.pickup_location %}
+                                                <i class="fas fa-map-marker-alt text-danger"></i>
+                                                <span>{{ booking.pickup_location.city }}</span>
+                                                {% else %}
+                                                <i class="fas fa-map-marker-alt text-danger"></i>
+                                                <span>Main Office</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="timeline-actions">
+                                            {% if booking.is_upcoming or booking.is_active %}
+                                                <a href="#" class="btn btn-sm btn-outline-primary btn-action">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-success btn-action">
+                                                    <i class="fas fa-edit"></i> Modify
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-danger btn-action">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-sm btn-outline-primary btn-action">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-info btn-action">
+                                                    <i class="fas fa-receipt"></i> Invoice
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-outline-success btn-action">
+                                                    <i class="fas fa-redo"></i> Rebook
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Billing Tab -->
+        <div class="tab-pane fade" id="billing" role="tabpanel" aria-labelledby="billing-tab">
+            <div class="billing-section animate-on-scroll fade-in">
+                <div class="section-intro">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> Billing Overview</h3>
+                    <p>Manage your payment methods and view your billing history.</p>
+                </div>
+                
+                <!-- Visualization Dashboard -->
+                <div class="billing-statistics">
+                    <div class="chart-container">
+                        <h4 class="subsection-title"><i class="fas fa-chart-line"></i> Spending Overview</h4>
+                        <div class="chart-widget">
+                            <!-- Placeholder for Chart.js implementation -->
+                            <div class="chart-placeholder">
+                                <div class="chart-bar" style="height: 60%;"><span class="month-label">Jan</span></div>
+                                <div class="chart-bar" style="height: 40%;"><span class="month-label">Feb</span></div>
+                                <div class="chart-bar" style="height: 75%;"><span class="month-label">Mar</span></div>
+                                <div class="chart-bar active" style="height: 85%;"><span class="month-label">Apr</span></div>
+                                <div class="chart-bar" style="height: 55%;"><span class="month-label">May</span></div>
+                                <div class="chart-bar" style="height: 65%;"><span class="month-label">Jun</span></div>
+                            </div>
+                            <div class="spending-summary">
+                                <div class="summary-item">
+                                    <span class="summary-label">Monthly Average</span>
+                                    <span class="summary-value">$420</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Year to Date</span>
+                                    <span class="summary-value">$1,680</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Projected Annual</span>
+                                    <span class="summary-value">$5,040</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="spending-distribution">
+                        <h4 class="subsection-title"><i class="fas fa-chart-pie"></i> Spending Distribution</h4>
+                        <div class="distribution-chart">
+                            <!-- Placeholder for Chart.js implementation -->
+                            <div class="donut-placeholder">
+                                <div class="donut-segment economy" style="--segment-rotation: 0deg; --segment-size: 110deg;">
+                                    <span class="segment-label">Economy</span>
+                                </div>
+                                <div class="donut-segment compact" style="--segment-rotation: 110deg; --segment-size: 80deg;">
+                                    <span class="segment-label">Compact</span>
+                                </div>
+                                <div class="donut-segment luxury" style="--segment-rotation: 190deg; --segment-size: 60deg;">
+                                    <span class="segment-label">Luxury</span>
+                                </div>
+                                <div class="donut-segment suv" style="--segment-rotation: 250deg; --segment-size: 110deg;">
+                                    <span class="segment-label">SUV</span>
+                                </div>
+                                <div class="donut-hole">
+                                    <span class="total-amount">$1,680</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Methods Section -->
+                <div class="payment-methods-section">
+                    <h4 class="subsection-title"><i class="fas fa-credit-card"></i> Payment Methods</h4>
+                    <div class="payment-methods-grid">
+                        <div class="payment-card default animate-on-scroll fade-in">
+                            <div class="card-badge">Default</div>
+                            <div class="card-type-icon">
+                                <i class="fab fa-cc-visa"></i>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-number">•••• •••• •••• 4321</div>
+                                <div class="card-expiry">Exp: 05/26</div>
+                                <div class="card-name">John Doe</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger">Remove</button>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card animate-on-scroll fade-in" style="animation-delay: 0.2s;">
+                            <div class="card-type-icon">
+                                <i class="fab fa-cc-mastercard"></i>
+                            </div>
+                            <div class="card-details">
+                                <div class="card-number">•••• •••• •••• 8765</div>
+                                <div class="card-expiry">Exp: 09/25</div>
+                                <div class="card-name">John Doe</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                <button class="btn btn-sm btn-outline-success">Set Default</button>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-card add-new animate-on-scroll fade-in" style="animation-delay: 0.4s;">
+                            <div class="add-card-content">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Add Payment Method</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Invoices -->
+                <div class="invoices-section">
+                    <h4 class="subsection-title"><i class="fas fa-receipt"></i> Recent Invoices</h4>
+                    <div class="invoices-list">
+                        <div class="invoice-item animate-on-scroll slide-in-right">
+                            <div class="invoice-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="invoice-details">
+                                <div class="invoice-title">
+                                    <h5>Invoice #INV-2023-1234</h5>
+                                    <span class="badge bg-success">Paid</span>
+                                </div>
+                                <div class="invoice-info">
+                                    <div class="info-col">
+                                        <span class="info-label">Date:</span>
+                                        <span class="info-value">Apr 2, 2023</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Car:</span>
+                                        <span class="info-value">Tesla Model 3</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Duration:</span>
+                                        <span class="info-value">4 days</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Amount:</span>
+                                        <span class="info-value">$440.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="invoice-actions">
+                                <button class="btn btn-sm btn-outline-primary ripple-effect">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary ripple-effect">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-item animate-on-scroll slide-in-right" style="animation-delay: 0.2s;">
+                            <div class="invoice-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="invoice-details">
+                                <div class="invoice-title">
+                                    <h5>Invoice #INV-2023-1198</h5>
+                                    <span class="badge bg-success">Paid</span>
+                                </div>
+                                <div class="invoice-info">
+                                    <div class="info-col">
+                                        <span class="info-label">Date:</span>
+                                        <span class="info-value">Mar 15, 2023</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Car:</span>
+                                        <span class="info-value">BMW X5</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Duration:</span>
+                                        <span class="info-value">2 days</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Amount:</span>
+                                        <span class="info-value">$320.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="invoice-actions">
+                                <button class="btn btn-sm btn-outline-primary ripple-effect">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary ripple-effect">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="invoice-item animate-on-scroll slide-in-right" style="animation-delay: 0.4s;">
+                            <div class="invoice-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="invoice-details">
+                                <div class="invoice-title">
+                                    <h5>Invoice #INV-2023-1056</h5>
+                                    <span class="badge bg-success">Paid</span>
+                                </div>
+                                <div class="invoice-info">
+                                    <div class="info-col">
+                                        <span class="info-label">Date:</span>
+                                        <span class="info-value">Feb 8, 2023</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Car:</span>
+                                        <span class="info-value">Toyota Camry</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Duration:</span>
+                                        <span class="info-value">5 days</span>
+                                    </div>
+                                    <div class="info-col">
+                                        <span class="info-label">Amount:</span>
+                                        <span class="info-value">$375.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="invoice-actions">
+                                <button class="btn btn-sm btn-outline-primary ripple-effect">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary ripple-effect">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="invoices-pagination">
+                        <button class="pagination-btn disabled">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="pagination-page active">1</span>
+                        <span class="pagination-page">2</span>
+                        <span class="pagination-page">3</span>
+                        <button class="pagination-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preferences Tab -->
+        <div class="tab-pane fade" id="preferences" role="tabpanel" aria-labelledby="preferences-tab">
+            <div class="preferences-section animate-on-scroll fade-in">
+                <div class="section-intro">
+                    <h3><i class="fas fa-sliders-h"></i> Your Preferences</h3>
+                    <p>Customize your experience with personalized settings.</p>
+                </div>
+                
+                <div class="preferences-grid">
+                    <div class="preferences-card">
+                        <div class="preferences-header">
+                            <i class="fas fa-car"></i>
+                            <h4>Vehicle Preferences</h4>
+                        </div>
+                        <div class="preferences-body">
+                            <div class="preference-item">
+                                <label>Preferred Vehicle Types</label>
+                                <div class="vehicle-preference-checkboxes">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="sedanPreference" checked>
+                                        <label class="form-check-label" for="sedanPreference">Sedan</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="suvPreference" checked>
+                                        <label class="form-check-label" for="suvPreference">SUV</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="luxuryPreference" checked>
+                                        <label class="form-check-label" for="luxuryPreference">Luxury</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="economyPreference">
+                                        <label class="form-check-label" for="economyPreference">Economy</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="vanPreference">
+                                        <label class="form-check-label" for="vanPreference">Van</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Transmission Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="transmissionPreference" id="automaticPreference" checked>
+                                    <label class="form-check-label" for="automaticPreference">Automatic</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="transmissionPreference" id="manualPreference">
+                                    <label class="form-check-label" for="manualPreference">Manual</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="transmissionPreference" id="anyTransmissionPreference">
+                                    <label class="form-check-label" for="anyTransmissionPreference">No Preference</label>
+                                </div>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Additional Features</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="gpsPreference" checked>
+                                    <label class="form-check-label" for="gpsPreference">GPS Navigation</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="bluetoothPreference" checked>
+                                    <label class="form-check-label" for="bluetoothPreference">Bluetooth</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="childSeatPreference">
+                                    <label class="form-check-label" for="childSeatPreference">Child Seat</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sunroofPreference">
+                                    <label class="form-check-label" for="sunroofPreference">Sunroof</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preferences-card">
+                        <div class="preferences-header">
+                            <i class="fas fa-bell"></i>
+                            <h4>Notification Settings</h4>
+                        </div>
+                        <div class="preferences-body">
+                            <div class="preference-item">
+                                <label>Email Notifications</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailBookingConfirmation" checked>
+                                    <label class="form-check-label" for="emailBookingConfirmation">Booking Confirmations</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailReminderBefore" checked>
+                                    <label class="form-check-label" for="emailReminderBefore">Reminder 24h Before Pickup</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailSpecialOffers" checked>
+                                    <label class="form-check-label" for="emailSpecialOffers">Special Offers & Promotions</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailNewsletter">
+                                    <label class="form-check-label" for="emailNewsletter">Newsletter</label>
+                                </div>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>SMS Notifications</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="smsBookingConfirmation" checked>
+                                    <label class="form-check-label" for="smsBookingConfirmation">Booking Confirmations</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="smsReminderBefore">
+                                    <label class="form-check-label" for="smsReminderBefore">Reminder 24h Before Pickup</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="smsSpecialOffers">
+                                    <label class="form-check-label" for="smsSpecialOffers">Special Offers & Promotions</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preferences-card">
+                        <div class="preferences-header">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h4>Location & Pickup</h4>
+                        </div>
+                        <div class="preferences-body">
+                            <div class="preference-item">
+                                <label>Preferred Pickup Location</label>
+                                <select class="form-select">
+                                    <option>Downtown Office</option>
+                                    <option>Airport Terminal 1</option>
+                                    <option>Airport Terminal 2</option>
+                                    <option>North Branch</option>
+                                    <option>South Branch</option>
+                                </select>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Preferred Dropoff Location</label>
+                                <select class="form-select">
+                                    <option>Same as pickup</option>
+                                    <option>Downtown Office</option>
+                                    <option>Airport Terminal 1</option>
+                                    <option>Airport Terminal 2</option>
+                                    <option>North Branch</option>
+                                    <option>South Branch</option>
+                                </select>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Express Pickup</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="expressPickupPreference" checked>
+                                    <label class="form-check-label" for="expressPickupPreference">Enable Express Pickup</label>
+                                </div>
+                                <small class="text-muted">Skip the counter, go straight to your car with digital key</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="preferences-card">
+                        <div class="preferences-header">
+                            <i class="fas fa-cog"></i>
+                            <h4>Account Settings</h4>
+                        </div>
+                        <div class="preferences-body">
+                            <div class="preference-item">
+                                <label>Display Name</label>
+                                <input type="text" class="form-control" value="John Doe">
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Contact Email</label>
+                                <input type="email" class="form-control" value="john.doe@example.com">
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Phone Number</label>
+                                <input type="tel" class="form-control" value="+1 (555) 123-4567">
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Default Language</label>
+                                <select class="form-select">
+                                    <option selected>English</option>
+                                    <option>Spanish</option>
+                                    <option>French</option>
+                                    <option>German</option>
+                                </select>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label>Two-Factor Authentication</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="twoFactorAuth" checked>
+                                    <label class="form-check-label" for="twoFactorAuth">Enable 2FA</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preferences-actions">
+                    <button class="btn btn-primary">Save Preferences</button>
+                    <button class="btn btn-outline-secondary">Reset to Default</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Green Rentals Tab -->
+        <div class="tab-pane fade" id="green-rentals" role="tabpanel" aria-labelledby="green-rentals-tab">
+            <div class="green-rentals-section animate-on-scroll fade-in">
+                <div class="section-intro">
+                    <h3><i class="fas fa-leaf"></i> Green Rental Program</h3>
+                    <p>Make environmentally conscious choices with our eco-friendly vehicle options.</p>
+                </div>
+                
+                <div class="eco-stats mb-4">
+                    <div class="eco-stat-card">
+                        <div class="eco-icon">
+                            <i class="fas fa-tree"></i>
+                        </div>
+                        <div class="eco-value">
+                            <span class="counter">245</span>
+                        </div>
+                        <div class="eco-label">
+                            Trees Saved
+                        </div>
+                    </div>
+                    <div class="eco-stat-card">
+                        <div class="eco-icon">
+                            <i class="fas fa-gas-pump"></i>
+                        </div>
+                        <div class="eco-value">
+                            <span class="counter">870</span> L
+                        </div>
+                        <div class="eco-label">
+                            Fuel Saved
+                        </div>
+                    </div>
+                    <div class="eco-stat-card">
+                        <div class="eco-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="eco-value">
+                            <span class="counter">1.2</span> tons
+                        </div>
+                        <div class="eco-label">
+                            CO₂ Emissions Reduced
+                        </div>
+                    </div>
+                    <div class="eco-stat-card">
+                        <div class="eco-icon">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div class="eco-value">
+                            Silver
+                        </div>
+                        <div class="eco-label">
+                            Green Status
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="green-vehicle-options">
+                    <h4 class="subsection-title">Available Eco-Friendly Vehicles</h4>
+                    <div class="green-vehicles">
+                        <div class="green-vehicle-card">
+                            <div class="eco-badge">
+                                <i class="fas fa-leaf"></i>
+                                <span>Eco-Friendly</span>
+                            </div>
+                            <div class="vehicle-image">
+                                <img src="{% static 'img/cars/luxury1.svg' %}" alt="Tesla Model 3">
+                            </div>
+                            <div class="vehicle-info">
+                                <h5>Tesla Model 3</h5>
+                                <div class="vehicle-specs">
+                                    <div class="spec-item">
+                                        <i class="fas fa-bolt"></i>
+                                        <span>310 mi range</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="fas fa-leaf"></i>
+                                        <span>100% Electric</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>0-60 mph: 5.3s</span>
+                                    </div>
+                                </div>
+                                <div class="vehicle-price">
+                                    <span class="price-value">$110</span> /day
+                                </div>
+                            </div>
+                            <div class="vehicle-cta">
+                                <button class="btn btn-success btn-block">Book Now</button>
+                            </div>
+                        </div>
+                        
+                        <div class="green-vehicle-card">
+                            <div class="eco-badge">
+                                <i class="fas fa-leaf"></i>
+                                <span>Eco-Friendly</span>
+                            </div>
+                            <div class="vehicle-image">
+                                <img src="{% static 'img/cars/luxury2.svg' %}" alt="Toyota Prius">
+                            </div>
+                            <div class="vehicle-info">
+                                <h5>Toyota Prius</h5>
+                                <div class="vehicle-specs">
+                                    <div class="spec-item">
+                                        <i class="fas fa-gas-pump"></i>
+                                        <span>58 mpg combined</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="fas fa-leaf"></i>
+                                        <span>Hybrid</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="fas fa-car"></i>
+                                        <span>5 passengers</span>
+                                    </div>
+                                </div>
+                                <div class="vehicle-price">
+                                    <span class="price-value">$65</span> /day
+                                </div>
+                            </div>
+                            <div class="vehicle-cta">
+                                <button class="btn btn-success btn-block">Book Now</button>
+                            </div>
+                        </div>
+                        
+                        <div class="green-vehicle-card">
+                            <div class="eco-badge">
+                                <i class="fas fa-leaf"></i>
+                                <span>Eco-Friendly</span>
+                            </div>
+                            <div class="vehicle-image">
+                                <img src="{% static 'img/cars/luxury3.svg' %}" alt="Nissan Leaf">
+                            </div>
+                            <div class="vehicle-info">
+                                <h5>Nissan Leaf</h5>
+                                <div class="vehicle-specs">
+                                    <div class="spec-item">
+                                        <i class="fas fa-bolt"></i>
+                                        <span>226 mi range</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="fas fa-leaf"></i>
+                                        <span>100% Electric</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <i class="fas fa-car-battery"></i>
+                                        <span>40 kWh battery</span>
+                                    </div>
+                                </div>
+                                <div class="vehicle-price">
+                                    <span class="price-value">$75</span> /day
+                                </div>
+                            </div>
+                            <div class="vehicle-cta">
+                                <button class="btn btn-success btn-block">Book Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="eco-benefits">
+                    <h4 class="subsection-title">Benefits of Green Rentals</h4>
+                    <div class="benefits-grid">
+                        <div class="benefit-card animate-on-scroll slide-in-up">
+                            <div class="benefit-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <h5>Save on Fuel Costs</h5>
+                            <p>Electric and hybrid vehicles can save up to 60% on fuel costs compared to conventional vehicles.</p>
+                        </div>
+                        
+                        <div class="benefit-card animate-on-scroll slide-in-up" style="animation-delay: 0.2s;">
+                            <div class="benefit-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h5>Reduce Carbon Footprint</h5>
+                            <p>Electric vehicles produce zero direct emissions, helping combat climate change.</p>
+                        </div>
+                        
+                        <div class="benefit-card animate-on-scroll slide-in-up" style="animation-delay: 0.4s;">
+                            <div class="benefit-icon">
+                                <i class="fas fa-parking"></i>
+                            </div>
+                            <h5>Parking Benefits</h5>
+                            <p>Many cities offer free or discounted parking for electric and hybrid vehicles.</p>
+                        </div>
+                        
+                        <div class="benefit-card animate-on-scroll slide-in-up" style="animation-delay: 0.6s;">
+                            <div class="benefit-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <h5>Better Performance</h5>
+                            <p>Electric vehicles offer instant torque for better acceleration and a smoother driving experience.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="eco-progression">
+                    <h4 class="subsection-title">Your Green Journey</h4>
+                    <div class="eco-progress">
+                        <div class="progress-track">
+                            <div class="progress-step completed">
+                                <div class="step-circle">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="step-label">Bronze</div>
+                            </div>
+                            <div class="progress-step completed">
+                                <div class="step-circle">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="step-label">Silver</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Gold</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Platinum</div>
+                            </div>
+                            <div class="progress-bar" style="width: 42%;"></div>
+                        </div>
+                        <div class="progress-info">
+                            <p>You've saved <strong>1.2 tons</strong> of CO₂! Rent 3 more electric vehicles to reach Gold status.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tools Tab -->
+        <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
+            <div class="tools-section animate-on-scroll fade-in">
+                <div class="section-intro">
+                    <h3><i class="fas fa-tools"></i> Rental Tools & Resources</h3>
+                    <p>Helpful resources to enhance your rental experience.</p>
+                </div>
+                
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h4>Price Calculator</h4>
+                        <p>Estimate the cost of your rental with additional options.</p>
+                        <button class="btn btn-primary">Open Calculator</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h4>Availability Calendar</h4>
+                        <p>Check vehicle availability for your desired dates.</p>
+                        <button class="btn btn-primary">View Calendar</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h4>Location Finder</h4>
+                        <p>Find pickup and dropoff locations near you.</p>
+                        <button class="btn btn-primary">Find Locations</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h4>Rental Checklist</h4>
+                        <p>Pre-rental and return inspection checklist.</p>
+                        <button class="btn btn-primary">View Checklist</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-car-crash"></i>
+                        </div>
+                        <h4>Accident Guide</h4>
+                        <p>What to do in case of an accident or breakdown.</p>
+                        <button class="btn btn-primary">View Guide</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <h4>FAQ</h4>
+                        <p>Answers to common rental questions.</p>
+                        <button class="btn btn-primary">View FAQs</button>
+                    </div>
+                </div>
+                
+                <div class="resources-section">
+                    <h4 class="subsection-title">Travel Guides & Resources</h4>
+                    <div class="resources-list">
+                        <div class="resource-item">
+                            <div class="resource-icon">
+                                <i class="fas fa-route"></i>
+                            </div>
+                            <div class="resource-content">
+                                <h5>Road Trip Planner</h5>
+                                <p>Interactive tool to plan your perfect road trip with stops, attractions, and recommended routes.</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View Tool</a>
+                            </div>
+                        </div>
+                        
+                        <div class="resource-item">
+                            <div class="resource-icon">
+                                <i class="fas fa-gas-pump"></i>
+                            </div>
+                            <div class="resource-content">
+                                <h5>Fuel Efficiency Tips</h5>
+                                <p>Maximize fuel efficiency and save money with these expert driving tips and maintenance advice.</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary">Read Guide</a>
+                            </div>
+                        </div>
+                        
+                        <div class="resource-item">
+                            <div class="resource-icon">
+                                <i class="fas fa-suitcase"></i>
+                            </div>
+                            <div class="resource-content">
+                                <h5>Packing Checklist</h5>
+                                <p>Comprehensive packing checklist for different types of trips to ensure you don't forget essentials.</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary">Download PDF</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="no-bookings-container">
+        <div class="no-bookings-message animate-on-scroll fade-in">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No Bookings Yet</h3>
+            <p>You haven't made any bookings yet. Start by exploring our available cars and planning your next adventure!</p>
+            <a href="{% url 'car_list' %}" class="btn btn-primary ripple-effect">
+                <i class="fas fa-car"></i> Browse Cars
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter buttons functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get the filter value
+                const filterValue = this.getAttribute('data-filter');
+                
+                // Get all timeline items
+                const timelineItems = document.querySelectorAll('.timeline-item');
+                
+                // Show/hide items based on filter
+                timelineItems.forEach(item => {
+                    if (filterValue === 'all') {
+                        item.style.display = 'block';
+                    } else if (item.getAttribute('data-status') === filterValue) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
